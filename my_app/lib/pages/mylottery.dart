@@ -51,7 +51,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -205,7 +205,7 @@ class _TicketCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: const DecorationImage(
-                  image: AssetImage('assets/images/images/Cupong.png'),
+                  image: AssetImage('assets/images/Cupong.png'),
                   fit: BoxFit.cover,
                 ),
               ),

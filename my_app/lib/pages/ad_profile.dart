@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ADProfilePage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),

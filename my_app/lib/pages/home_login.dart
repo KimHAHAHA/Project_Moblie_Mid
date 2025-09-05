@@ -28,7 +28,7 @@ class _HomePageState extends State<Home_LoginPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            'assets/images/images/LOGO.png',
+            'assets/images/LOGO.png',
             height: 70,
             fit: BoxFit.contain,
           ),
@@ -95,7 +95,7 @@ class _HomePageState extends State<Home_LoginPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         image: const DecorationImage(
-          image: AssetImage('assets/images/images/Cupong.png'),
+          image: AssetImage('assets/images/Cupong.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -127,12 +127,13 @@ class _HomePageState extends State<Home_LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, elevation: 0,
+      automaticallyImplyLeading: false,),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -153,7 +154,7 @@ class _HomePageState extends State<Home_LoginPage> {
                       // TODO: logic สุ่มเลข
                       setState(() {});
                     }),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 12), 
                     _darkButton('Confirm', () {
                       // TODO: logic confirm
                     }),

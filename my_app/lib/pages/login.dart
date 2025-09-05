@@ -1,17 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:my_app/pages/register.dart';
+// ignore_for_file: use_build_context_synchronously
+import 'dart:developer' show log;
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-  int name = 1111;
-  int PW = 1111;
-  int adname = 2222;
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/request/user_login_post_req.dart';
+import 'package:my_app/model/response/user_login_get_res.dart';
+import 'package:my_app/pages/ad_home_login.dart';
+import 'package:my_app/pages/home_login.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  String url = "";
+
+  @override
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then((config) {
+      url = config["apiEndpoint"];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
-
     InputDecoration deco(String hint) => InputDecoration(
       hintText: hint,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -26,7 +45,7 @@ class LoginPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -40,7 +59,7 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Image.asset('assets/images/images/LOGO.png', height: 160),
+                    Image.asset('assets/images/LOGO.png', height: 160),
 
                     const SizedBox(height: 50),
                     // ===== FORM CARD =====
@@ -92,35 +111,10 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(height: 20),
 
                           // ปุ่ม เข้าสู่ระบบ
-                          // ปุ่ม เข้าสู่ระบบ
                           SizedBox(
                             height: 46,
                             child: ElevatedButton(
-                              onPressed: () {
-                                final u = int.tryParse(usernameController.text);
-                                final p = int.tryParse(passwordController.text);
-
-                                if (u == name && p == PW) {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/home_login',
-                                  );
-                                } else if (u == adname && p == PW) {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/adhome_login',
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Username หรือ Password ไม่ถูกต้อง",
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              },
+                              onPressed: login,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black87,
                                 foregroundColor: const Color.fromARGB(
@@ -175,5 +169,38 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void login() {
+    var data = UserPostRequest(
+      username: usernameController.text,
+      password: passwordController.text,
+    );
+    http
+        .post(
+          Uri.parse("$url/login"),
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: userPostRequestToJson(data),
+        )
+        .then((value) {
+          UserPostResponse userpostresponse = userPostResponseFromJson(value.body);
+          if (userpostresponse.role == "member")
+          {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Home_LoginPage()),
+            );
+          }
+          else if (userpostresponse.role == "admin") 
+          {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ADHome_LoginPage()),
+            );
+          }
+        })
+        .catchError((error) {
+          log('Error $error');
+        });
   }
 }

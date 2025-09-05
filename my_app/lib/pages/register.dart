@@ -1,39 +1,38 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:developer';
 
-class RegisterPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/request/user_register_post_req.dart';
+import 'package:my_app/pages/login.dart';
+
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  var user = TextEditingController();
+  var pass = TextEditingController();
+  var pass2 = TextEditingController();
+  var phone = TextEditingController();
+  var wallet = TextEditingController();
+
+  String url = "";
+
+  @override
+  void initState() {
+    super.initState();
+    Configuration.getConfig().then((config) {
+      url = config["apiEndpoint"];
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = TextEditingController();
-    final pass = TextEditingController();
-    final pass2 = TextEditingController();
-    final phone = TextEditingController();
-    final wallet = TextEditingController();
-
-    void submit() {
-      if (user.text.trim().isEmpty ||
-          pass.text.isEmpty ||
-          pass2.text.isEmpty ||
-          phone.text.isEmpty ||
-          wallet.text.isEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('กรอกข้อมูลให้ครบถ้วน')));
-        return;
-      }
-      if (pass.text != pass2.text) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('รหัสผ่านไม่ตรงกัน')));
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('สมัครสำเร็จ')));
-      Navigator.pop(context); // กลับไปหน้า Login
-    }
-
     InputDecoration deco(String hint) => InputDecoration(
       hintText: hint,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -43,8 +42,11 @@ class RegisterPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -55,7 +57,6 @@ class RegisterPage extends StatelessWidget {
         child: SafeArea(
           child: Stack(
             children: [
-              // ===== โลโก้ + ปุ่ม Back =====
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -65,7 +66,7 @@ class RegisterPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Image.asset(
-                      'assets/images/images/LOGO.png',
+                      'assets/images/LOGO.png',
                       height: 70,
                       fit: BoxFit.contain,
                     ),
@@ -185,14 +186,10 @@ class RegisterPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 18),
 
-                        // ===== ปุ่ม Submit =====
                         SizedBox(
                           height: 46,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pushReplacementNamed(
-                              context,
-                              '/login',
-                            ),
+                            onPressed: register,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black87,
                               shape: RoundedRectangleBorder(
@@ -211,7 +208,6 @@ class RegisterPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
 
-                        // ===== ลิงก์ Sign in =====
                         Center(
                           child: GestureDetector(
                             onTap: () {
@@ -240,5 +236,57 @@ class RegisterPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void register() {
+    if (user.text.trim().isEmpty ||
+        pass.text.isEmpty ||
+        pass2.text.isEmpty ||
+        phone.text.isEmpty ||
+        wallet.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('กรอกข้อมูลให้ครบถ้วน')));
+    }
+
+    if (pass.text != pass2.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('รหัสผ่านไม่ตรงกัน')));
+    } else {
+      var userregister = UserRegisterPostRequest(
+        username: user.text,
+        password: pass.text,
+        phone: phone.text,
+        walletBalance: int.parse(wallet.text),
+      );
+
+      http
+          .post(
+            Uri.parse("$url/register"),
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: userRegisterPostRequestToJson(userregister),
+          )
+          .then((value) {
+            final Map<String, dynamic> res = jsonDecode(value.body);
+            if (res['message'] == 'ลงทะเบียนสำเร็จ') {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('สมัครสำเร็จ')));
+              var message = Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            } else {
+              var data = res['message'];
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(data)));
+            }
+          })
+          .catchError((error) {
+            log('Error $error');
+          });
+    }
   }
 }

@@ -102,7 +102,7 @@ class _HomePageState extends State<ADLuckyPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             image: const DecorationImage(
-              image: AssetImage('assets/images/images/Cupong.png'),
+              image: AssetImage('assets/images/Cupong.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -132,7 +132,7 @@ class _HomePageState extends State<ADLuckyPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),

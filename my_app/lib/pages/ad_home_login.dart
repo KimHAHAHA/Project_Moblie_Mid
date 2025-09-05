@@ -28,7 +28,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            'assets/images/images/LOGO.png',
+            'assets/images/LOGO.png',
             height: 70,
             fit: BoxFit.contain,
           ),
@@ -93,7 +93,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         image: const DecorationImage(
-          image: AssetImage('assets/images/images/Cupong.png'),
+          image: AssetImage('assets/images/Cupong.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -124,7 +124,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
