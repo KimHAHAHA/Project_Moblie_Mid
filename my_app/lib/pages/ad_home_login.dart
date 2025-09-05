@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class ADHome_LoginPage extends StatefulWidget {
+  const ADHome_LoginPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ADHome_LoginPage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<ADHome_LoginPage> {
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
@@ -17,13 +17,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    for (var c in _controllers) {
-      c.dispose();
-    }
+    for (final c in _controllers) c.dispose();
     super.dispose();
   }
 
-  // ==== Logo ====
   Widget _logoBlock() {
     return Align(
       alignment: Alignment.centerLeft,
@@ -40,26 +37,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ==== PIN box container ====
+  // ---------- PIN container
   Widget _pinContainer() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black26, width: 1.2),
+        color: Colors.white.withOpacity(0.9),
+        border: Border.all(color: Colors.black26, width: 1.6),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(6, (i) => _pinBox(i)),
+        children: List.generate(6, _pinBox),
       ),
     );
   }
 
   Widget _pinBox(int index) {
     return SizedBox(
-      width: 42,
-      height: 50,
+      width: 44,
+      height: 52,
       child: TextField(
         controller: _controllers[index],
         textAlign: TextAlign.center,
@@ -68,6 +65,7 @@ class _HomePageState extends State<HomePage> {
           counterText: '',
           filled: true,
           fillColor: Colors.white,
+          contentPadding: const EdgeInsets.only(bottom: 4),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         keyboardType: TextInputType.number,
@@ -75,14 +73,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ==== Button ====
+  // ---------- Buttons
   Widget _darkButton(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF3D3D3D),
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         elevation: 0,
@@ -91,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ==== Ticket Card ====
+  // ---------- Ticket Card
   Widget _ticketCard() {
     return Container(
       decoration: BoxDecoration(
@@ -104,21 +102,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ==== Navigation Tap ====
+  // ---------- Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/adhome_login');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/adlucky');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/login');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/register');
+        Navigator.pushReplacementNamed(context, '/profile');
         break;
     }
   }
@@ -139,29 +134,26 @@ class _HomePageState extends State<HomePage> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _logoBlock(),
-                const SizedBox(height: 12),
-
-                // กล่อง PIN 6 ช่อง
+                const SizedBox(height: 10),
                 _pinContainer(),
-                const SizedBox(height: 14),
-
-                // ปุ่ม
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Rondom', () {}),
-                    const SizedBox(width: 16),
+                    _darkButton('Rondom', () {
+                      // TODO: logic สุ่มเลข
+                      setState(() {});
+                    }),
+                    const SizedBox(width: 12),
                     _darkButton('Confirm', () {
                       // TODO: logic confirm
                     }),
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // การ์ดลอตเตอรี่
                 Expanded(
                   child: GridView.builder(
                     itemCount: 8,
@@ -172,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisSpacing: 12,
                           childAspectRatio: 2.15,
                         ),
-                    itemBuilder: (context, index) => _ticketCard(),
+                    itemBuilder: (_, __) => _ticketCard(),
                   ),
                 ),
               ],
@@ -181,28 +173,30 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      // Bottom Navigation
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(18),
           child: BottomNavigationBar(
-            backgroundColor: Colors.white.withOpacity(0.9),
+            backgroundColor: Colors.white.withOpacity(0.92),
+            type: BottomNavigationBarType.fixed,
             currentIndex: _selectedIndex,
             onTap: _onNavTapped,
             selectedItemColor: Colors.black87,
             unselectedItemColor: Colors.black54,
             showUnselectedLabels: true,
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                label: 'Home',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.card_giftcard),
-                label: 'Lottery',
+                label: 'Lucky numbers',
               ),
-              BottomNavigationBarItem(icon: Icon(Icons.login), label: 'Login'),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_add),
-                label: 'Register',
+                icon: Icon(Icons.person_outline),
+                label: 'Admin',
               ),
             ],
           ),

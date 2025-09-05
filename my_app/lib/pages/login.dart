@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:my_app/pages/register.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+  int name = 1111;
+  int PW = 1111;
+  int adname = 2222;
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +92,35 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(height: 20),
 
                           // ปุ่ม เข้าสู่ระบบ
+                          // ปุ่ม เข้าสู่ระบบ
                           SizedBox(
                             height: 46,
                             child: ElevatedButton(
-                              // onPressed: () {
-                              //   final u = usernameController.text;
-                              //   final p = passwordController.text;
-                              //   debugPrint('Login: $u / $p');
-                              // },
-                              onPressed: () => Navigator.pushReplacementNamed(
-                                context,
-                                '/home_login',
-                              ),
+                              onPressed: () {
+                                final u = int.tryParse(usernameController.text);
+                                final p = int.tryParse(passwordController.text);
+
+                                if (u == name && p == PW) {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/home_login',
+                                  );
+                                } else if (u == adname && p == PW) {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/adhome_login',
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Username หรือ Password ไม่ถูกต้อง",
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black87,
                                 foregroundColor: const Color.fromARGB(

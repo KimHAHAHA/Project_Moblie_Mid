@@ -21,21 +21,19 @@ class _HomePageState extends State<Home_LoginPage> {
     super.dispose();
   }
 
-  // ---------- Top bar: Logo (left) + Cart (right)
-  Widget _topBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(children: [Image.asset('assets/images/LOGO.png', height: 70)]),
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          color: Colors.black87,
-          onPressed: () {
-            Navigator.pushNamed(context, '/cart'); // ✅ เส้นทางไปหน้าตะกร้า
-          },
-          tooltip: 'Cart',
-        ),
-      ],
+  Widget _logoBlock() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/images/LOGO.png',
+            height: 70,
+            fit: BoxFit.contain,
+          ),
+        ],
+      ),
     );
   }
 
@@ -144,7 +142,7 @@ class _HomePageState extends State<Home_LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _topBar(),
+                _logoBlock(),
                 const SizedBox(height: 10),
                 _pinContainer(),
                 const SizedBox(height: 12),
