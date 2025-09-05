@@ -65,17 +65,15 @@ class RegisterPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Image.asset(
-                      'assets/images/LOGO.png',
+                      'assets/images/images/LOGO.png',
                       height: 70,
                       fit: BoxFit.contain,
                     ),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, size: 26),
                       color: Colors.black87,
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/home_login',
-                      ),
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, '/login'),
                       tooltip: 'Back',
                       splashRadius: 22,
                     ),
@@ -217,7 +215,7 @@ class RegisterPage extends StatelessWidget {
                         Center(
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, '/login');
+                              Navigator.pushReplacementNamed(context, '/login');
                             },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(vertical: 6),

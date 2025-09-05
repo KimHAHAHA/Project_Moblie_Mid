@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ADProfilePage extends StatefulWidget {
+  const ADProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ADProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  int _navIndex = 4; // tab Profile
+class _ProfilePageState extends State<ADProfilePage> {
+  int _navIndex = 2;
 
   void _onNavTap(int i) {
+    if (i == _navIndex) return;
     setState(() => _navIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+        Navigator.pushReplacementNamed(context, '/adhome_login');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+        Navigator.pushReplacementNamed(context, '/adlucky');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/wallet');
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/check');
-        break;
-      case 4:
-        // already here
+        Navigator.pushReplacementNamed(context, '/adprofile');
         break;
     }
   }
@@ -109,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Profile',
+                      'Admin',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -119,7 +114,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: const Icon(Icons.arrow_back, size: 26),
                       color: Colors.black87,
                       splashRadius: 22,
-                      onPressed: () => Navigator.pop(context), // กลับหน้าล่าสุด
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/adhome_login',
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -128,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 // ปุ่ม/ฟิลด์ตามภาพ
                 _roundedAction(
                   icon: Icons.person_outline,
-                  text: 'User',
+                  text: 'Profile',
                   onTap: () {
                     // TODO: ไปหน้าแก้ไขโปรไฟล์หรือดูข้อมูลผู้ใช้
                   },
@@ -138,7 +142,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: Icons.logout,
                   text: 'Logout',
                   onTap: () {
-                    // TODO: ล็อกเอาต์ แล้วพากลับหน้า Login
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       '/login',
@@ -147,6 +150,32 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 ),
 
+                const Spacer(flex: 20),
+
+                // ปุ่มสีแดง
+                Center(
+                  child: SizedBox(
+                    width: 130,
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // TODO: ใส่ logic ถ้าต้องการ
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: const Text('Clear Data'),
+                    ),
+                  ),
+                ),
                 const Spacer(),
               ],
             ),
@@ -175,14 +204,6 @@ class _ProfilePageState extends State<ProfilePage> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.confirmation_number_outlined),
                 label: 'Lottery',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.account_balance_wallet_outlined),
-                label: 'Wallet',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.fact_check_outlined),
-                label: 'Check',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),

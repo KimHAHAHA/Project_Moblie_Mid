@@ -28,7 +28,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
-            'assets/images/LOGO.png',
+            'assets/images/images/LOGO.png',
             height: 70,
             fit: BoxFit.contain,
           ),
@@ -73,7 +73,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  // ---------- Buttons
   Widget _darkButton(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
@@ -89,13 +88,12 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  // ---------- Ticket Card
   Widget _ticketCard() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         image: const DecorationImage(
-          image: AssetImage('assets/images/Cupong.png'),
+          image: AssetImage('assets/images/images/Cupong.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -113,7 +111,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
         Navigator.pushReplacementNamed(context, '/adlucky');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/profile');
+        Navigator.pushReplacementNamed(context, '/adprofile');
         break;
     }
   }
@@ -126,7 +124,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -144,13 +142,10 @@ class _HomePageState extends State<ADHome_LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _darkButton('Rondom', () {
-                      // TODO: logic สุ่มเลข
                       setState(() {});
                     }),
                     const SizedBox(width: 12),
-                    _darkButton('Confirm', () {
-                      // TODO: logic confirm
-                    }),
+                    _darkButton('Confirm', () {}),
                   ],
                 ),
                 const SizedBox(height: 16),

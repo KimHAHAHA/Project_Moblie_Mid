@@ -1,5 +1,6 @@
 import 'package:my_app/pages/ad_home_login.dart';
 import 'package:my_app/pages/ad_lucky.dart';
+import 'package:my_app/pages/ad_profile.dart';
 import 'package:my_app/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/pages/home_login.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/adhome_login': (context) => const ADHome_LoginPage(),
         '/adlucky': (context) => const ADLuckyPage(),
+        '/adprofile': (context) => const ADProfilePage(),
       },
     );
   }

@@ -26,7 +26,7 @@ class LoginPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/Backgroud.jpg'),
+            image: AssetImage('assets/images/images/Backgroud.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -40,7 +40,7 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Image.asset('assets/images/LOGO.png', height: 160),
+                    Image.asset('assets/images/images/LOGO.png', height: 160),
 
                     const SizedBox(height: 50),
                     // ===== FORM CARD =====
@@ -146,7 +146,10 @@ class LoginPage extends StatelessWidget {
                           Center(
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.pushNamed(context, '/register');
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/register',
+                                );
                               },
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 6),
