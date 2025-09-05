@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:convert';
 import 'dart:developer' show log;
 
 import 'package:flutter/material.dart';
@@ -183,16 +184,23 @@ class _LoginPageState extends State<LoginPage> {
           body: userPostRequestToJson(data),
         )
         .then((value) {
-          UserPostResponse userpostresponse = userPostResponseFromJson(value.body);
-          if (userpostresponse.role == "member")
-          {
+          final Map<String, dynamic> res = jsonDecode(value.body);
+
+          if (res['message']) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(res['message'])));
+          }
+
+          UserPostResponse userpostresponse = userPostResponseFromJson(
+            value.body,
+          );
+          if (userpostresponse.role == "member") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Home_LoginPage()),
             );
-          }
-          else if (userpostresponse.role == "admin") 
-          {
+          } else if (userpostresponse.role == "admin") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ADHome_LoginPage()),
