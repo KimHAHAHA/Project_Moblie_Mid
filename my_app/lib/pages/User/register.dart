@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/request/user_register_post_req.dart';
-import 'package:my_app/pages/login.dart';
+import 'package:my_app/pages/User/login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

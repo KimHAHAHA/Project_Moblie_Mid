@@ -7,8 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/request/user_login_post_req.dart';
 import 'package:my_app/model/response/user_login_get_res.dart';
-import 'package:my_app/pages/ad_home_login.dart';
-import 'package:my_app/pages/home_login.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
+import 'package:my_app/pages/User/home_login.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

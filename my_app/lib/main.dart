@@ -1,20 +1,20 @@
+import 'package:my_app/pages/Admin/ad_admin.dart';
+import 'package:my_app/pages/Admin/ad_edit_profile.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
+import 'package:my_app/pages/Admin/ad_lucky.dart';
+import 'package:my_app/pages/Admin/ad_new_password.dart';
+import 'package:my_app/pages/Admin/ad_profile.dart';
 import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/edit_profile.dart';
+import 'package:my_app/pages/User/home.dart';
+import 'package:my_app/pages/User/home_login.dart';
+import 'package:my_app/pages/User/login.dart';
 import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
-import 'package:my_app/pages/ad_edit_profile.dart';
-import 'package:my_app/pages/ad_home_login.dart';
-import 'package:my_app/pages/ad_lucky.dart';
-import 'package:my_app/pages/ad_admin.dart';
-import 'package:my_app/pages/ad_new_password.dart';
-import 'package:my_app/pages/ad_profile.dart';
-import 'package:my_app/pages/edit_profile.dart';
-import 'package:my_app/pages/home.dart';
+import 'package:my_app/pages/User/new_password.dart';
+import 'package:my_app/pages/User/register.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/pages/home_login.dart';
-import 'package:my_app/pages/login.dart';
-import 'package:my_app/pages/new_password.dart';
 import 'package:my_app/pages/User/profile.dart';
-import 'package:my_app/pages/register.dart';
 
 void main() {
   runApp(const MyApp());
