@@ -11,7 +11,7 @@ import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/User/home_login.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -198,7 +198,9 @@ class _LoginPageState extends State<LoginPage> {
           if (userpostresponse.role == "member") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Home_LoginPage()),
+              MaterialPageRoute(
+                builder: (context) => Home_LoginPage(idx: res['uid']),
+              ),
             );
           } else if (userpostresponse.role == "admin") {
             Navigator.push(

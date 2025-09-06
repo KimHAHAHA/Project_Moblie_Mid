@@ -1,16 +1,103 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
 
 class MyWalletPage extends StatefulWidget {
-  const MyWalletPage({super.key});
+  // รับ idx แบบชัดเจน
+  final int idx;
+  const MyWalletPage({super.key, required this.idx});
 
   @override
   State<MyWalletPage> createState() => _MyWalletPageState();
 }
 
 class _MyWalletPageState extends State<MyWalletPage> {
-  int _selectedIndex = 2; // Wallet tab
+  int _selectedIndex = 2;
 
-  // เส้นทางการกดปุ่ม Navigation
+  // ค่า config + สถานะการโหลด
+  String url = "";
+  String? balanceText; // ข้อความยอดเงินที่จะแสดง
+  String? errorText; // ข้อความ error หากมี
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init(); // โหลด config แล้วค่อยยิง API
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await wallet(); // รอให้ได้ url ก่อนแล้วค่อยเรียก API
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
+  Future<void> wallet() async {
+    if (url.isEmpty) return;
+
+    setState(() {
+      loading = true;
+      errorText = null;
+    });
+
+    try {
+      // เขียนแบบปลอดภัยกับ path ได้เช่นกัน:
+      // final uri = Uri.parse(url).replace(path: "/profile/wallet/${widget.idx}");
+      final uri = Uri.parse("$url/profile/wallet/${widget.idx}");
+      log("GET $uri");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+
+      final decoded = jsonDecode(res.body);
+      log("decoded type = ${decoded.runtimeType}");
+
+      // รองรับทั้ง List และ Map
+      Map<String, dynamic> row;
+      if (decoded is List && decoded.isNotEmpty) {
+        row = decoded.first as Map<String, dynamic>;
+      } else if (decoded is Map<String, dynamic>) {
+        row = decoded;
+      } else {
+        throw Exception("Unexpected JSON shape");
+      }
+
+      // ดึงค่า wallet_balance (เป็น string) แล้วแปลงเป็นตัวเลข
+      final raw = row['wallet_balance'] ?? row['balance'] ?? row['amount'] ?? 0;
+      final num balance = raw is num
+          ? raw
+          : (num.tryParse(raw.toString()) ?? 0);
+
+      if (!mounted) return;
+      setState(() {
+        balanceText = balance.toStringAsFixed(2); // "10000.00"
+      });
+
+      // log ทั้ง object (แปลงเป็น string ก่อน)
+      log("wallet row: ${jsonEncode(row)}");
+    } catch (e, st) {
+      log("wallet error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -34,12 +121,14 @@ class _MyWalletPageState extends State<MyWalletPage> {
 
   @override
   Widget build(BuildContext context) {
+    final showBalance = balanceText ?? '—';
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 0, // ใช้ SafeArea + Row ทำหัวเอง
+        toolbarHeight: 0,
       ),
 
       body: Container(
@@ -55,7 +144,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ===== หัวเรื่อง + ปุ่มย้อนกลับ (ขวา) =====
+                // หัวข้อ + ปุ่ม Back
                 Row(
                   children: [
                     const Expanded(
@@ -82,7 +171,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // ===== การ์ดยอดเงิน สีเหลืองอ่อน =====
+                // การ์ดยอดเงิน
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -90,7 +179,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF2B3), // เหลืองอ่อนคล้ายตัวอย่าง
+                    color: const Color(0xFFFFF2B3),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
@@ -114,12 +203,12 @@ class _MyWalletPageState extends State<MyWalletPage> {
                       const SizedBox(height: 6),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
+                        children: [
                           Expanded(
                             child: Text(
-                              '100,000.00',
+                              loading ? 'กำลังโหลด...' : showBalance,
                               textAlign: TextAlign.left,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 36,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 1.0,
@@ -127,8 +216,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Padding(
+                          const SizedBox(width: 8),
+                          const Padding(
                             padding: EdgeInsets.only(bottom: 6),
                             child: Text(
                               'THB.',
@@ -141,11 +230,17 @@ class _MyWalletPageState extends State<MyWalletPage> {
                           ),
                         ],
                       ),
+                      if (errorText != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Error: $errorText',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ],
                     ],
                   ),
                 ),
 
-                // เผื่อพื้นที่ด้านล่างให้โล่งตามตัวอย่าง
                 const SizedBox(height: 8),
                 const Expanded(child: SizedBox()),
               ],
@@ -154,7 +249,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
         ),
       ),
 
-      // ===== แถบนำทางล่าง (5 ปุ่ม) =====
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -182,7 +276,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.fact_check_outlined),
-                label: 'check',
+                label: 'Check',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),

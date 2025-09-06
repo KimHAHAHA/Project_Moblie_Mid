@@ -226,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // TODO: ลบ token/เซสชันตามจริง
-                        Navigator.pushReplacementNamed(context, '/home_login');
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF5A3C),

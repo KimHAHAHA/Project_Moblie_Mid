@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/User/mywallet.dart';
 
 class Home_LoginPage extends StatefulWidget {
-  const Home_LoginPage({super.key});
+  var idx = 0;
+  Home_LoginPage({super.key, required this.idx});
 
   @override
   State<Home_LoginPage> createState() => _HomePageState();
@@ -14,7 +18,6 @@ class _HomePageState extends State<Home_LoginPage> {
   );
 
   int _selectedIndex = 0;
-
   @override
   void dispose() {
     for (final c in _controllers) c.dispose();
@@ -73,7 +76,6 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  // ---------- Buttons
   Widget _darkButton(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
@@ -89,7 +91,6 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  // ---------- Ticket Card
   Widget _ticketCard() {
     return Container(
       decoration: BoxDecoration(
@@ -102,7 +103,6 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  // ---------- Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -113,8 +113,12 @@ class _HomePageState extends State<Home_LoginPage> {
         Navigator.pushReplacementNamed(context, '/my_lottery');
         break;
       case 2: // Wallet
-        Navigator.pushReplacementNamed(context, '/mywallet');
-        break;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyWalletPage(idx: widget.idx),
+          ),
+        );
       case 3: // Check
         Navigator.pushReplacementNamed(context, '/check');
         break;
@@ -156,10 +160,9 @@ class _HomePageState extends State<Home_LoginPage> {
                       // TODO: logic สุ่มเลข
                       setState(() {});
                     }),
+
                     const SizedBox(width: 12),
-                    _darkButton('Confirm', () {
-                      // TODO: logic confirm
-                    }),
+                    _darkButton('Confirm', () {}),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -182,7 +185,6 @@ class _HomePageState extends State<Home_LoginPage> {
         ),
       ),
 
-      // ---------- Bottom Navigation (5 เมนู)
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -221,5 +223,9 @@ class _HomePageState extends State<Home_LoginPage> {
         ),
       ),
     );
+  }
+
+  void log01() {
+    log(widget.idx.toString());
   }
 }

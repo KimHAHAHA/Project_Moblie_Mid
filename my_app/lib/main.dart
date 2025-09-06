@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/home',
       routes: {
         //User
-        '/home_login': (context) => const Home_LoginPage(),
+        '/home_login': (context) => Home_LoginPage(idx: 0),
         '/home': (context) => const HomePage(),
         '/login': (context) => LoginPage(),
         '/my_lottery': (context) => const MyLotteryPage(),
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/editprofile': (context) => const EditProfilePage(),
         '/check': (context) => const CheckPage(),
-        '/mywallet': (context) => const MyWalletPage(),
+        '/mywallet': (context) => MyWalletPage(idx: 0),
         '/newpassword': (context) => const NewPasswordPage(),
 
         //Admin
