@@ -1,20 +1,19 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
-class ADLuckyPage extends StatefulWidget {
-  const ADLuckyPage({super.key});
+class ADHome_LoginPage extends StatefulWidget {
+  const ADHome_LoginPage({super.key});
 
   @override
-  State<ADLuckyPage> createState() => _HomePageState();
+  State<ADHome_LoginPage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<ADLuckyPage> {
+class _HomePageState extends State<ADHome_LoginPage> {
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
 
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   @override
   void dispose() {
@@ -22,24 +21,33 @@ class _HomePageState extends State<ADLuckyPage> {
     super.dispose();
   }
 
-  void _randomFill() {
-    final r = Random();
-    for (int i = 0; i < 6; i++) {
-      _controllers[i].text = r.nextInt(10).toString();
-    }
-    setState(() {});
+  Widget _logoBlock() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/images/LOGO.png',
+            height: 70,
+            fit: BoxFit.contain,
+          ),
+        ],
+      ),
+    );
   }
 
+  // ---------- PIN container
   Widget _pinContainer() {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
         border: Border.all(color: Colors.black26, width: 1.6),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(6, _pinBox),
       ),
     );
@@ -80,37 +88,19 @@ class _HomePageState extends State<ADLuckyPage> {
     );
   }
 
-  Widget _ticketCard(String title, {bool isCenterTitle = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Align(
-          alignment: isCenterTitle ? Alignment.center : Alignment.centerLeft,
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
+  Widget _ticketCard() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/Cupong.png'),
+          fit: BoxFit.cover,
         ),
-        const SizedBox(height: 6),
-        Container(
-          height: 80,
-          width: 160,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: const DecorationImage(
-              image: AssetImage('assets/images/Cupong.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
+  // ---------- Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -121,7 +111,7 @@ class _HomePageState extends State<ADLuckyPage> {
         Navigator.pushReplacementNamed(context, '/adlucky');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/adprofile');
+        Navigator.pushReplacementNamed(context, '/admin');
         break;
     }
   }
@@ -129,6 +119,8 @@ class _HomePageState extends State<ADLuckyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -138,65 +130,38 @@ class _HomePageState extends State<ADLuckyPage> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 15, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Lucky Numbers',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/adhome_login',
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                _logoBlock(),
+                const SizedBox(height: 10),
                 _pinContainer(),
                 const SizedBox(height: 12),
-                Center(child: _darkButton('Random', _randomFill)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _darkButton('Rondom', () {
+                      setState(() {});
+                    }),
+                    const SizedBox(width: 12),
+                    _darkButton('Confirm', () {}),
+                  ],
+                ),
                 const SizedBox(height: 16),
-
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Center(
-                          child: _ticketCard('Jackpot', isCenterTitle: true),
+                  child: GridView.builder(
+                    itemCount: 8,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 2.15,
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _ticketCard('Second Prize'),
-                            _ticketCard('Third Prize'),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _ticketCard('Last 3 Numbers'),
-                            _ticketCard('Last 2 Numbers'),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                    itemBuilder: (_, __) => _ticketCard(),
                   ),
                 ),
-                Center(child: _darkButton('Confirm', () {})),
               ],
             ),
           ),
@@ -221,8 +186,8 @@ class _HomePageState extends State<ADLuckyPage> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.confirmation_number_outlined),
-                label: 'Lucky Numbers',
+                icon: Icon(Icons.card_giftcard),
+                label: 'Lucky numbers',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),

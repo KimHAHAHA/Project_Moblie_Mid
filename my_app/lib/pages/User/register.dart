@@ -42,11 +42,11 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   automaticallyImplyLeading: false,
+      // ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(

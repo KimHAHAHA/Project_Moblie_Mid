@@ -113,7 +113,7 @@ class _HomePageState extends State<Home_LoginPage> {
         Navigator.pushReplacementNamed(context, '/my_lottery');
         break;
       case 2: // Wallet
-        Navigator.pushReplacementNamed(context, '/wallet');
+        Navigator.pushReplacementNamed(context, '/mywallet');
         break;
       case 3: // Check
         Navigator.pushReplacementNamed(context, '/check');
@@ -128,8 +128,10 @@ class _HomePageState extends State<Home_LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0,
-      automaticallyImplyLeading: false,),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -154,7 +156,7 @@ class _HomePageState extends State<Home_LoginPage> {
                       // TODO: logic สุ่มเลข
                       setState(() {});
                     }),
-                    const SizedBox(width: 12), 
+                    const SizedBox(width: 12),
                     _darkButton('Confirm', () {
                       // TODO: logic confirm
                     }),

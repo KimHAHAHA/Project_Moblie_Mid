@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ADProfilePage extends StatefulWidget {
-  const ADProfilePage({super.key});
+class ADAdminPage extends StatefulWidget {
+  const ADAdminPage({super.key});
 
   @override
-  State<ADProfilePage> createState() => _ProfilePageState();
+  State<ADAdminPage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ADProfilePage> {
+class _ProfilePageState extends State<ADAdminPage> {
   int _navIndex = 2;
 
   void _onNavTap(int i) {
@@ -21,7 +21,7 @@ class _ProfilePageState extends State<ADProfilePage> {
         Navigator.pushReplacementNamed(context, '/adlucky');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/adprofile');
+        Navigator.pushReplacementNamed(context, '/admin');
         break;
     }
   }
@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ADProfilePage> {
                   icon: Icons.person_outline,
                   text: 'Profile',
                   onTap: () {
-                    // TODO: ไปหน้าแก้ไขโปรไฟล์หรือดูข้อมูลผู้ใช้
+                    Navigator.pushReplacementNamed(context, '/adprofile');
                   },
                 ),
                 const SizedBox(height: 12),
@@ -202,12 +202,12 @@ class _ProfilePageState extends State<ADProfilePage> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.confirmation_number_outlined),
-                label: 'Lottery',
+                icon: Icon(Icons.card_giftcard),
+                label: 'Lucky Numbers',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
-                label: 'Profile',
+                label: 'Admin',
               ),
             ],
           ),

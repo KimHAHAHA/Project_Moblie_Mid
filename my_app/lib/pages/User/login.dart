@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
         .then((value) {
           final Map<String, dynamic> res = jsonDecode(value.body);
 
-          if (res['message']) {
+          if (res['message'] != null) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(res['message'])));
