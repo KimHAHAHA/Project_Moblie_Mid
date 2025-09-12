@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
+// ปรับให้ตรงกับโปรเจกต์ของคุณ
+import 'package:my_app/pages/User/mylottery.dart';
+import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/profile.dart';
+import 'package:my_app/pages/User/home_login.dart';
+
 class CheckPage extends StatefulWidget {
-  const CheckPage({super.key});
+  final int? idx;
+  const CheckPage({super.key, this.idx});
 
   @override
-  State<CheckPage> createState() => _HomePageState();
+  State<CheckPage> createState() => _CheckPageState();
 }
 
-class _HomePageState extends State<CheckPage> {
-  int _selectedIndex = 3; // หน้า Check
-
-  // ====== UI Helpers ======
+class _CheckPageState extends State<CheckPage> {
+  int _selectedIndex = 3;
   Widget _ticketCard(String title, {bool centerTitle = false}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -19,9 +24,7 @@ class _HomePageState extends State<CheckPage> {
           : CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(
-            left: centerTitle ? 0 : 4,
-          ), // ให้ฟีลชิดซ้ายเล็กน้อยเหมือนภาพ
+          padding: EdgeInsets.only(left: centerTitle ? 0 : 4),
           child: Text(
             title,
             style: const TextStyle(
@@ -76,25 +79,37 @@ class _HomePageState extends State<CheckPage> {
     );
   }
 
-  // ====== Nav handler ======
+  // ====== Nav handler (เรียกหน้าโดยตรง) ======
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
-    // TODO: แก้เป็น route จริงของโปรเจกต์คุณ
     switch (i) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+      case 0: // Home
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
+          ),
+        );
         break;
-      case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+      case 1: // Lottery
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+        );
         break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/mywallet');
+      case 2: // Wallet
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+        );
         break;
-      case 3:
-        // หน้านี้เอง
+      case 3: // Check (อยู่หน้านี้แล้ว)
         break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
+      case 4: // Profile
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfilePage()),
+        );
         break;
     }
   }
@@ -130,10 +145,15 @@ class _HomePageState extends State<CheckPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/home_login',
-                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                Home_LoginPage(idx: widget.idx ?? 0),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

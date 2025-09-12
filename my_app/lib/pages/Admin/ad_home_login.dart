@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/Admin/ad_admin.dart';
+import 'package:my_app/pages/Admin/ad_lucky.dart';
 
 class ADHome_LoginPage extends StatefulWidget {
   const ADHome_LoginPage({super.key});
@@ -37,7 +39,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  // ---------- PIN container
   Widget _pinContainer() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -100,18 +101,27 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  // ---------- Navigation
   void _onNavTapped(int i) {
+    if (i == _selectedIndex) return;
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/adhome_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/adlucky');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/admin');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+        );
         break;
     }
   }
@@ -167,7 +177,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
           ),
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

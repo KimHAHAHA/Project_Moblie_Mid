@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
+// === ปรับ path ให้ตรงกับโปรเจกต์คุณ ===
+import 'package:my_app/pages/User/home_login.dart';
+import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/profile.dart';
+
 class MyLotteryPage extends StatefulWidget {
-  const MyLotteryPage({super.key});
+  final int? idx; // เผื่อส่งต่อไป Wallet
+  const MyLotteryPage({super.key, this.idx});
 
   @override
   State<MyLotteryPage> createState() => _MyLotteryPageState();
@@ -10,24 +17,41 @@ class MyLotteryPage extends StatefulWidget {
 class _MyLotteryPageState extends State<MyLotteryPage> {
   int _selectedIndex = 1; // ตำแหน่ง Lottery
 
-  // เส้นทางการกดปุ่ม Navigation
+  // เส้นทางการกดปุ่ม Navigation (เรียกหน้าโดยตรง)
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+      case 0: // Home
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
+          ),
+        );
         break;
-      case 1:
-        // อยู่ที่ Lottery แล้ว
+
+      case 1: // Lottery (อยู่หน้านี้แล้ว)
         break;
-      case 2:
-        Navigator.pushReplacementNamed(context, '/mywallet');
+
+      case 2: // Wallet
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+        );
         break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/check');
+
+      case 3: // Check
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
+        );
         break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
+
+      case 4: // Profile
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfilePage()),
+        );
         break;
     }
   }
@@ -51,7 +75,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFEEDD9E), // พื้นเหลืองอ่อนคล้ายตัวอย่าง
+              color: const Color(0xFFEEDD9E),
               borderRadius: BorderRadius.circular(18),
             ),
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
@@ -108,7 +132,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
 
                   const SizedBox(height: 12),
 
-                  // ข้อความยินดี
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -121,7 +144,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  // ช่องกรอก 1: ยอดเงินที่จะได้รับ
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -146,15 +168,14 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
 
-                  // ช่องกรอก 2: ยอดเงินคงเหลือ
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -179,15 +200,14 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ปุ่มยกเลิก / ขึ้นเงิน
                   Row(
                     children: [
                       Expanded(
@@ -217,9 +237,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFF6B5F2D,
-                            ), // เขียวมะกอกเข้ม
+                            backgroundColor: const Color(0xFF6B5F2D),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -243,7 +261,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ข้อมูลตัวอย่าง: เลข + สถานะว่าขึ้นเงินได้ไหม
     final tickets = const [
       _TicketData(number: '888888', date: '1 ก.ค. 2568', cashable: false),
       _TicketData(number: '999999', date: '1 ก.ค. 2568', cashable: false),
@@ -268,7 +285,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== หัวเรื่อง + ปุ่มย้อนกลับ =====
+              // ===== หัวเรื่อง + ปุ่มย้อนกลับ (เรียกหน้าโดยตรง) =====
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
                 child: Row(
@@ -282,10 +299,15 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/home_login',
-                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                Home_LoginPage(idx: widget.idx ?? 0),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_back, size: 26),
                       color: Colors.black87,
                       splashRadius: 22,
@@ -412,7 +434,6 @@ class _TicketCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // card พื้นหลังคูปอง
           AspectRatio(
             aspectRatio: 2.9,
             child: Container(
@@ -425,7 +446,6 @@ class _TicketCard extends StatelessWidget {
               ),
               child: Stack(
                 children: [
-                  // วันที่มุมขวาบน
                   Positioned(
                     right: 10,
                     top: 8,
@@ -438,7 +458,6 @@ class _TicketCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // เลขตรงกลาง
                   Center(
                     child: Text(
                       number,
@@ -454,7 +473,6 @@ class _TicketCard extends StatelessWidget {
             ),
           ),
 
-          // ปุ่ม "ขึ้นเงิน" มุมขวาล่าง (เฉพาะใบที่ cashable)
           if (cashable)
             Positioned(
               right: 14,

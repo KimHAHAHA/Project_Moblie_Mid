@@ -1,20 +1,5 @@
-import 'package:my_app/pages/Admin/ad_admin.dart';
-import 'package:my_app/pages/Admin/ad_edit_profile.dart';
-import 'package:my_app/pages/Admin/ad_home_login.dart';
-import 'package:my_app/pages/Admin/ad_lucky.dart';
-import 'package:my_app/pages/Admin/ad_new_password.dart';
-import 'package:my_app/pages/Admin/ad_profile.dart';
-import 'package:my_app/pages/User/check.dart';
-import 'package:my_app/pages/User/edit_profile.dart';
-import 'package:my_app/pages/User/home.dart';
-import 'package:my_app/pages/User/home_login.dart';
-import 'package:my_app/pages/User/login.dart';
-import 'package:my_app/pages/User/mylottery.dart';
-import 'package:my_app/pages/User/mywallet.dart';
-import 'package:my_app/pages/User/new_password.dart';
-import 'package:my_app/pages/User/register.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/pages/User/profile.dart';
+import 'package:my_app/pages/User/home_login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,31 +16,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: '/home',
-      routes: {
-        //User
-        '/home_login': (context) => Home_LoginPage(idx: 0),
-        '/home': (context) => const HomePage(),
-        '/login': (context) => LoginPage(),
-        '/my_lottery': (context) => const MyLotteryPage(),
-        '/register': (context) => const RegisterPage(),
-        '/profile': (context) => const ProfilePage(),
-        '/editprofile': (context) => const EditProfilePage(),
-        '/check': (context) => const CheckPage(),
-        '/mywallet': (context) => MyWalletPage(idx: 0),
-        '/newpassword': (context) => const NewPasswordPage(),
-
-        //Admin
-        '/adhome_login': (context) => const ADHome_LoginPage(),
-        '/adlucky': (context) => const ADLuckyPage(),
-        '/admin': (context) => const ADAdminPage(),
-        '/adprofile': (context) => const ADProfilePage(),
-        '/adnewpassword': (context) => const ADNewPasswordPage(),
-        '/adeditprofile': (context) => const ADEditProfilePage(),
-      },
+      home: Home_LoginPage(idx: 0),
     );
   }
 }
 
-//admin u:admin01 pw:adminpass123
-//user u:user01 pw:pass01
+//User name: user01    pw: pass01
+//Admin name: 11       pm: 11

@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/Admin/ad_admin.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
 
 class ADLuckyPage extends StatefulWidget {
   const ADLuckyPage({super.key});
@@ -112,16 +114,26 @@ class _HomePageState extends State<ADLuckyPage> {
   }
 
   void _onNavTapped(int i) {
+    if (i == _selectedIndex) return;
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/adhome_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/adlucky');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/admin');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+        );
         break;
     }
   }
@@ -155,10 +167,14 @@ class _HomePageState extends State<ADLuckyPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/adhome_login',
-                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ADHome_LoginPage(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -167,7 +183,6 @@ class _HomePageState extends State<ADLuckyPage> {
                 const SizedBox(height: 12),
                 Center(child: _darkButton('Random', _randomFill)),
                 const SizedBox(height: 16),
-
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -202,7 +217,6 @@ class _HomePageState extends State<ADLuckyPage> {
           ),
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

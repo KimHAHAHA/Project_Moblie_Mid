@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
+import 'package:my_app/pages/Admin/ad_lucky.dart';
+import 'package:my_app/pages/Admin/ad_profile.dart';
+import 'package:my_app/pages/User/login.dart';
 
 class ADAdminPage extends StatefulWidget {
   const ADAdminPage({super.key});
 
   @override
-  State<ADAdminPage> createState() => _ProfilePageState();
+  State<ADAdminPage> createState() => _ADAdminPageState();
 }
 
-class _ProfilePageState extends State<ADAdminPage> {
+class _ADAdminPageState extends State<ADAdminPage> {
   int _navIndex = 2;
 
   void _onNavTap(int i) {
@@ -15,13 +19,18 @@ class _ProfilePageState extends State<ADAdminPage> {
     setState(() => _navIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/adhome_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/adlucky');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/admin');
         break;
     }
   }
@@ -78,7 +87,6 @@ class _ProfilePageState extends State<ADAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ซ่อน back อัตโนมัติ; เราทำปุ่มเอง
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -99,7 +107,6 @@ class _ProfilePageState extends State<ADAdminPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header: Title + Back
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -118,9 +125,11 @@ class _ProfilePageState extends State<ADAdminPage> {
                         if (Navigator.of(context).canPop()) {
                           Navigator.of(context).pop();
                         } else {
-                          Navigator.pushReplacementNamed(
+                          Navigator.push(
                             context,
-                            '/adhome_login',
+                            MaterialPageRoute(
+                              builder: (_) => const ADHome_LoginPage(),
+                            ),
                           );
                         }
                       },
@@ -128,13 +137,14 @@ class _ProfilePageState extends State<ADAdminPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // ปุ่ม/ฟิลด์ตามภาพ
                 _roundedAction(
                   icon: Icons.person_outline,
                   text: 'Profile',
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, '/adprofile');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ADProfilePage()),
+                    );
                   },
                 ),
                 const SizedBox(height: 12),
@@ -142,25 +152,20 @@ class _ProfilePageState extends State<ADAdminPage> {
                   icon: Icons.logout,
                   text: 'Logout',
                   onTap: () {
-                    Navigator.pushNamedAndRemoveUntil(
+                    Navigator.pushAndRemoveUntil(
                       context,
-                      '/login',
+                      MaterialPageRoute(builder: (_) => LoginPage()),
                       (route) => false,
                     );
                   },
                 ),
-
                 const Spacer(flex: 20),
-
-                // ปุ่มสีแดง
                 Center(
                   child: SizedBox(
                     width: 130,
                     height: 44,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: ใส่ logic ถ้าต้องการ
-                      },
+                      onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
@@ -182,8 +187,6 @@ class _ProfilePageState extends State<ADAdminPage> {
           ),
         ),
       ),
-
-      // Bottom Navigation
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

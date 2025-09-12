@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
+// ปรับ import ให้ตรงกับโปรเจกต์ของคุณ
+import 'package:my_app/pages/User/profile.dart';
+import 'package:my_app/pages/User/mylottery.dart';
+import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/home_login.dart'; // ถ้ามีหน้า Home หลังล็อกอิน
+
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final int? idx;
+  const EditProfilePage({super.key, this.idx});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -12,7 +20,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _usernameCtl = TextEditingController(text: 'กี');
   final _phoneCtl = TextEditingController(text: '05484848');
 
-  int _selectedIndex = 4; // Profile tab
+  int _selectedIndex = 4;
 
   @override
   void dispose() {
@@ -25,24 +33,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
+          ),
+        );
         break;
+
       case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+        );
         break;
+
       case 2:
-        Navigator.pushReplacementNamed(context, '/mywallet');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+        );
         break;
-      case 3:
-        Navigator.pushReplacementNamed(context, '/check');
+
+      case 3: // Check
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CheckPage()),
+        );
         break;
-      case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
+
+      case 4: // Profile
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfilePage()),
+        );
         break;
     }
   }
 
-  // กล่องอินพุต: ไม่มี label/hint ในช่อง
   InputDecoration _boxDecoration() => InputDecoration(
     isDense: true,
     filled: true,
@@ -55,7 +83,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     ),
   );
 
-  // ฟิลด์มาตรฐาน: ชื่อด้านบน + TextFormField กล่องเปล่า
   Widget _field({
     required String label,
     required TextEditingController controller,
@@ -77,7 +104,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
-          decoration: _boxDecoration(), // ไม่มี label/hint ในช่อง
+          decoration: _boxDecoration(),
           validator: validator,
         ),
       ],
@@ -106,7 +133,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title + Back (ไอคอนด้านขวา)
+                // Title + Back (เรียกหน้าโปรไฟล์โดยตรง)
                 Row(
                   children: [
                     const Expanded(
@@ -120,8 +147,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/profile'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProfilePage(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_back),
                       color: Colors.black87,
                       splashRadius: 22,
@@ -194,11 +227,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   width: 120,
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () =>
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          '/profile',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ProfilePage(),
                                         ),
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
                                       foregroundColor: Colors.white,
@@ -218,9 +254,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       if (_formKey.currentState?.validate() ??
                                           false) {
                                         // TODO: save changes
-                                        Navigator.pushReplacementNamed(
+                                        Navigator.push(
                                           context,
-                                          '/profile',
+                                          MaterialPageRoute(
+                                            builder: (_) => const ProfilePage(),
+                                          ),
                                         );
                                       }
                                     },
@@ -251,7 +289,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
 
-      // Bottom Nav
+      // Bottom Nav — เรียกหน้าโดยตรง
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

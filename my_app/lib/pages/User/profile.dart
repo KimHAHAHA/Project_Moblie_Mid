@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/User/edit_profile.dart';
+
+import 'package:my_app/pages/User/home_login.dart';
+import 'package:my_app/pages/User/mylottery.dart';
+import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/new_password.dart';
+import 'package:my_app/pages/User/login.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -8,30 +16,38 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _selectedIndex = 4; // Profile tab
-
-  // ข้อมูลผู้ใช้ (ตัวอย่าง)
+  int _selectedIndex = 4;
   final String username = '123456';
   final String phone = '05484848';
 
-  // นำทาง BottomNavigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: 0)),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/mywallet');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: 0)),
+        );
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/check');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CheckPage()),
+        );
         break;
       case 4:
-        // อยู่หน้า Profile
         break;
     }
   }
@@ -43,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 0, // ซ่อน AppBar ปกติ
+        toolbarHeight: 0,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -58,7 +74,6 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ===== Title + Back (ไอคอนอยู่ขวา) =====
                 Row(
                   children: [
                     const Expanded(
@@ -73,14 +88,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     IconButton(
                       onPressed: () {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop();
-                        } else {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/home_login',
-                          );
-                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Home_LoginPage(idx: 0),
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.arrow_back),
                       color: Colors.black87,
@@ -90,8 +103,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
                 const SizedBox(height: 30),
-
-                // ===== Avatar =====
                 Center(
                   child: CircleAvatar(
                     radius: 67,
@@ -104,8 +115,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // ===== Card: Username / Phone + ปุ่ม =====
                 Center(
                   child: Container(
                     width: 280,
@@ -169,15 +178,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                         const SizedBox(height: 14),
-
-                        // ปุ่ม Edit Profile (เล็ก สีเข้ม)
                         SizedBox(
                           height: 36,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pushReplacementNamed(
-                              context,
-                              '/editprofile',
-                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const EditProfilePage(),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF3D3D3D),
                               foregroundColor: Colors.white,
@@ -192,15 +203,16 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: const Text('Edit Profile'),
                           ),
                         ),
-
                         const SizedBox(height: 10),
-
-                        // ลิงก์ New Password
                         GestureDetector(
-                          onTap: () => Navigator.pushReplacementNamed(
-                            context,
-                            '/newpassword',
-                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NewPasswordPage(),
+                              ),
+                            );
+                          },
                           child: const Text(
                             'New Password',
                             style: TextStyle(
@@ -215,18 +227,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-
                 const Spacer(),
-
-                // ===== ปุ่ม Logout สีส้มใหญ่ =====
                 Center(
                   child: SizedBox(
                     width: 220,
                     height: 46,
                     child: ElevatedButton(
                       onPressed: () {
-                        // TODO: ลบ token/เซสชันตามจริง
-                        Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => LoginPage()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF5A3C),
@@ -252,8 +263,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-
-      // ===== Bottom Navigation =====
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

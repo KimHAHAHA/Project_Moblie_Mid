@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 
+import 'package:my_app/pages/User/home_login.dart';
+import 'package:my_app/pages/User/mylottery.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/profile.dart';
+
 class MyWalletPage extends StatefulWidget {
-  // รับ idx แบบชัดเจน
   final int idx;
   const MyWalletPage({super.key, required this.idx});
 
@@ -16,23 +20,22 @@ class MyWalletPage extends StatefulWidget {
 class _MyWalletPageState extends State<MyWalletPage> {
   int _selectedIndex = 2;
 
-  // ค่า config + สถานะการโหลด
   String url = "";
-  String? balanceText; // ข้อความยอดเงินที่จะแสดง
-  String? errorText; // ข้อความ error หากมี
+  String? balanceText;
+  String? errorText;
   bool loading = false;
 
   @override
   void initState() {
     super.initState();
-    _init(); // โหลด config แล้วค่อยยิง API
+    _init();
   }
 
   Future<void> _init() async {
     try {
       final config = await Configuration.getConfig();
       url = (config["apiEndpoint"] as String).trim();
-      await wallet(); // รอให้ได้ url ก่อนแล้วค่อยเรียก API
+      await wallet();
     } catch (e, st) {
       log("init error: $e\n$st");
       if (!mounted) return;
@@ -49,8 +52,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
     });
 
     try {
-      // เขียนแบบปลอดภัยกับ path ได้เช่นกัน:
-      // final uri = Uri.parse(url).replace(path: "/profile/wallet/${widget.idx}");
       final uri = Uri.parse("$url/profile/wallet/${widget.idx}");
       log("GET $uri");
 
@@ -66,7 +67,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
       final decoded = jsonDecode(res.body);
       log("decoded type = ${decoded.runtimeType}");
 
-      // รองรับทั้ง List และ Map
       Map<String, dynamic> row;
       if (decoded is List && decoded.isNotEmpty) {
         row = decoded.first as Map<String, dynamic>;
@@ -76,7 +76,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
         throw Exception("Unexpected JSON shape");
       }
 
-      // ดึงค่า wallet_balance (เป็น string) แล้วแปลงเป็นตัวเลข
       final raw = row['wallet_balance'] ?? row['balance'] ?? row['amount'] ?? 0;
       final num balance = raw is num
           ? raw
@@ -84,10 +83,9 @@ class _MyWalletPageState extends State<MyWalletPage> {
 
       if (!mounted) return;
       setState(() {
-        balanceText = balance.toStringAsFixed(2); // "10000.00"
+        balanceText = balance.toStringAsFixed(2);
       });
 
-      // log ทั้ง object (แปลงเป็น string ก่อน)
       log("wallet row: ${jsonEncode(row)}");
     } catch (e, st) {
       log("wallet error: $e\n$st");
@@ -102,19 +100,30 @@ class _MyWalletPageState extends State<MyWalletPage> {
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+        );
         break;
       case 2:
-        // อยู่หน้า Wallet แล้ว
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/check');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CheckPage()),
+        );
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfilePage()),
+        );
         break;
     }
   }
@@ -130,7 +139,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
         elevation: 0,
         toolbarHeight: 0,
       ),
-
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -144,7 +152,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // หัวข้อ + ปุ่ม Back
                 Row(
                   children: [
                     const Expanded(
@@ -158,10 +165,14 @@ class _MyWalletPageState extends State<MyWalletPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/home_login',
-                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Home_LoginPage(idx: widget.idx),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_back),
                       color: Colors.black87,
                       splashRadius: 22,
@@ -170,8 +181,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // การ์ดยอดเงิน
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -240,7 +249,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 8),
                 const Expanded(child: SizedBox()),
               ],
@@ -248,7 +256,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

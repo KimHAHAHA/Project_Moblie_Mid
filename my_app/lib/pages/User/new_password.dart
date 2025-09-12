@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:my_app/pages/User/home_login.dart';
+import 'package:my_app/pages/User/mylottery.dart';
+import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/profile.dart';
+
 class NewPasswordPage extends StatefulWidget {
-  const NewPasswordPage({super.key});
+  final int? idx;
+  const NewPasswordPage({super.key, this.idx});
 
   @override
   State<NewPasswordPage> createState() => _NewPasswordPageState();
@@ -13,7 +20,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   final _newPassCtl = TextEditingController();
   final _confirmPassCtl = TextEditingController();
 
-  int _selectedIndex = 4; // Profile tab
+  int _selectedIndex = 4;
 
   @override
   void dispose() {
@@ -27,24 +34,40 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/home_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
+          ),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/my_lottery');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/mywallet');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+        );
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/check');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CheckPage()),
+        );
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/profile');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfilePage()),
+        );
         break;
     }
   }
 
-  // กล่องอินพุตแบบไม่มี label/hint ภายใน
   InputDecoration _boxDecoration() => InputDecoration(
     isDense: true,
     filled: true,
@@ -57,7 +80,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     ),
   );
 
-  // วิดเจ็ตฟิลด์มาตรฐาน: ชื่อด้านบน + กล่องกรอก
   Widget _field({
     required String label,
     required TextEditingController controller,
@@ -81,7 +103,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           controller: controller,
           obscureText: obscure,
           keyboardType: keyboardType,
-          decoration: _boxDecoration(), // ไม่มี label/hint ในช่อง
+          decoration: _boxDecoration(),
           validator: validator,
         ),
       ],
@@ -110,7 +132,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title + Back (ขวา)
                 Row(
                   children: [
                     const Expanded(
@@ -124,8 +145,14 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/profile'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProfilePage(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_back),
                       color: Colors.black87,
                       splashRadius: 22,
@@ -133,8 +160,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Avatar
                 Center(
                   child: CircleAvatar(
                     radius: 65,
@@ -147,8 +172,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                   ),
                 ),
                 const SizedBox(height: 28),
-
-                // ฟอร์มการ์ด
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 320),
@@ -197,8 +220,6 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                   : null,
                             ),
                             const SizedBox(height: 18),
-
-                            // ปุ่ม
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -206,11 +227,14 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                   width: 120,
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () =>
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          '/profile',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ProfilePage(),
                                         ),
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
                                       foregroundColor: Colors.white,
@@ -229,10 +253,11 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                     onPressed: () {
                                       if (_formKey.currentState?.validate() ??
                                           false) {
-                                        // TODO: บันทึกรหัสใหม่
-                                        Navigator.pushReplacementNamed(
+                                        Navigator.push(
                                           context,
-                                          '/profile',
+                                          MaterialPageRoute(
+                                            builder: (_) => const ProfilePage(),
+                                          ),
                                         );
                                       }
                                     },
@@ -255,15 +280,12 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                     ),
                   ),
                 ),
-
                 const Spacer(),
               ],
             ),
           ),
         ),
       ),
-
-      // Bottom Navigation
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

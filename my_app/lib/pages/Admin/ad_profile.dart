@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/Admin/ad_admin.dart';
+import 'package:my_app/pages/Admin/ad_edit_profile.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
+import 'package:my_app/pages/Admin/ad_lucky.dart';
+import 'package:my_app/pages/Admin/ad_new_password.dart';
 
 class ADProfilePage extends StatefulWidget {
   const ADProfilePage({super.key});
@@ -8,26 +13,32 @@ class ADProfilePage extends StatefulWidget {
 }
 
 class _ADProfilePageState extends State<ADProfilePage> {
-  // โปรไฟล์อยู่หมวด Admin → ให้แท็บที่ 3 (index 2) ถูกเลือก
   int _selectedIndex = 2;
 
-  // ข้อมูลตัวอย่าง
   final String username = '222222';
   final String phone = '05484848';
 
-  // นำทางเมนูล่าง (3 ปุ่มสำหรับ Admin)
   void _onNavTapped(int i) {
-    if (i == _selectedIndex) return; // กดแท็บเดิมไม่ต้องทำอะไร
+    if (i == _selectedIndex) return;
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/adhome_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/adlucky');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/admin');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+        );
         break;
     }
   }
@@ -54,7 +65,6 @@ class _ADProfilePageState extends State<ADProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // หัวข้อ + ปุ่มย้อนกลับด้านขวา
                 Row(
                   children: [
                     const Expanded(
@@ -72,7 +82,12 @@ class _ADProfilePageState extends State<ADProfilePage> {
                         if (Navigator.of(context).canPop()) {
                           Navigator.of(context).pop();
                         } else {
-                          Navigator.pushReplacementNamed(context, '/admin');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ADAdminPage(),
+                            ),
+                          );
                         }
                       },
                       icon: const Icon(Icons.arrow_back),
@@ -83,8 +98,6 @@ class _ADProfilePageState extends State<ADProfilePage> {
                   ],
                 ),
                 const SizedBox(height: 30),
-
-                // รูปโปรไฟล์
                 Center(
                   child: CircleAvatar(
                     radius: 67,
@@ -97,8 +110,6 @@ class _ADProfilePageState extends State<ADProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // การ์ดข้อมูล Username/Phone + ปุ่ม
                 Center(
                   child: Container(
                     width: 280,
@@ -162,15 +173,17 @@ class _ADProfilePageState extends State<ADProfilePage> {
                           ],
                         ),
                         const SizedBox(height: 14),
-
-                        // ปุ่มแก้ไข
                         SizedBox(
                           height: 36,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.pushReplacementNamed(
-                              context,
-                              '/adeditprofile',
-                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ADEditProfilePage(),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF3D3D3D),
                               foregroundColor: Colors.white,
@@ -186,13 +199,15 @@ class _ADProfilePageState extends State<ADProfilePage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-
-                        // ลิงก์ New Password
                         GestureDetector(
-                          onTap: () => Navigator.pushReplacementNamed(
-                            context,
-                            '/adnewpassword',
-                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ADNewPasswordPage(),
+                              ),
+                            );
+                          },
                           child: const Text(
                             'New Password',
                             style: TextStyle(
@@ -207,19 +222,20 @@ class _ADProfilePageState extends State<ADProfilePage> {
                     ),
                   ),
                 ),
-
                 const Spacer(),
-
-                // ปุ่ม Logout
                 Center(
                   child: SizedBox(
                     width: 220,
                     height: 46,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pushReplacementNamed(
-                        context,
-                        '/adhome_login',
-                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ADHome_LoginPage(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF5A3C),
                         foregroundColor: Colors.white,
@@ -244,8 +260,6 @@ class _ADProfilePageState extends State<ADProfilePage> {
           ),
         ),
       ),
-
-      // เมนูล่าง (Admin: 3 ปุ่ม)
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

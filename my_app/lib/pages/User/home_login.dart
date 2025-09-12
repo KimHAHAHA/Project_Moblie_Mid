@@ -1,11 +1,15 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/User/check.dart';
+import 'package:my_app/pages/User/login.dart';
+import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
+import 'package:my_app/pages/User/profile.dart';
+import 'package:my_app/pages/User/register.dart';
 
 class Home_LoginPage extends StatefulWidget {
-  var idx = 0;
-  Home_LoginPage({super.key, required this.idx});
+  final int idx;
+  const Home_LoginPage({super.key, required this.idx});
 
   @override
   State<Home_LoginPage> createState() => _HomePageState();
@@ -18,6 +22,7 @@ class _HomePageState extends State<Home_LoginPage> {
   );
 
   int _selectedIndex = 0;
+
   @override
   void dispose() {
     for (final c in _controllers) c.dispose();
@@ -105,32 +110,65 @@ class _HomePageState extends State<Home_LoginPage> {
 
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
-    switch (i) {
-      case 0: // Home
-        Navigator.pushReplacementNamed(context, '/home_login');
-        break;
-      case 1: // Lottery
-        Navigator.pushReplacementNamed(context, '/my_lottery');
-        break;
-      case 2: // Wallet
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyWalletPage(idx: widget.idx),
-          ),
-        );
-      case 3: // Check
-        Navigator.pushReplacementNamed(context, '/check');
-        break;
-      case 4: // Profile
-        Navigator.pushReplacementNamed(context, '/profile');
-        break;
+
+    if (widget.idx != 0) {
+      switch (i) {
+        case 0:
+          break;
+        case 1:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          );
+          break;
+        case 2:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx!)),
+          );
+          break;
+        case 3:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CheckPage()),
+          );
+          break;
+        case 4:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfilePage()),
+          );
+          break;
+      }
+    } else {
+      switch (i) {
+        case 0:
+          break;
+        case 1:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          );
+          break;
+        case 2: // Login
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => LoginPage()),
+          );
+          break;
+        case 3: // Register
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RegisterPage()),
+          );
+          break;
+      }
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -156,11 +194,9 @@ class _HomePageState extends State<Home_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Rondom', () {
-                      // TODO: logic สุ่มเลข
+                    _darkButton('Random', () {
                       setState(() {});
                     }),
-
                     const SizedBox(width: 12),
                     _darkButton('Confirm', () {}),
                   ],
@@ -184,7 +220,6 @@ class _HomePageState extends State<Home_LoginPage> {
           ),
         ),
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -197,35 +232,50 @@ class _HomePageState extends State<Home_LoginPage> {
             selectedItemColor: Colors.black87,
             unselectedItemColor: Colors.black54,
             showUnselectedLabels: true,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.confirmation_number_outlined),
-                label: 'Lottery',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.account_balance_wallet_outlined),
-                label: 'Wallet',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.fact_check_outlined),
-                label: 'Check',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                label: 'Profile',
-              ),
-            ],
+            items: (widget.idx != 0)
+                ? const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home_outlined),
+                      label: 'Home',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.confirmation_number_outlined),
+                      label: 'Lottery',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.account_balance_wallet_outlined),
+                      label: 'Wallet',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.fact_check_outlined),
+                      label: 'Check',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person_outline),
+                      label: 'Profile',
+                    ),
+                  ]
+                : const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.card_giftcard),
+                      label: 'Lottery',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.login),
+                      label: 'Login',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person_add),
+                      label: 'Register',
+                    ),
+                  ],
           ),
         ),
       ),
     );
-  }
-
-  void log01() {
-    log(widget.idx.toString());
   }
 }

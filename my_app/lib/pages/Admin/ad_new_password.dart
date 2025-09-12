@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/pages/Admin/ad_admin.dart';
+import 'package:my_app/pages/Admin/ad_home_login.dart';
+import 'package:my_app/pages/Admin/ad_lucky.dart';
+import 'package:my_app/pages/Admin/ad_profile.dart';
 
 class ADNewPasswordPage extends StatefulWidget {
   const ADNewPasswordPage({super.key});
@@ -13,7 +17,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
   final _newPassCtl = TextEditingController();
   final _confirmPassCtl = TextEditingController();
 
-  // อยู่หมวด Admin → ให้แท็บ index 2 ถูกเลือก
   int _selectedIndex = 2;
 
   @override
@@ -25,22 +28,30 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
   }
 
   void _onNavTapped(int i) {
-    if (i == _selectedIndex) return; // กดแท็บเดิมไม่ต้องทำอะไร
+    if (i == _selectedIndex) return;
     setState(() => _selectedIndex = i);
     switch (i) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/adhome_login');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/adlucky');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/admin');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+        );
         break;
     }
   }
 
-  // กล่องอินพุตแบบไม่มี label/hint ภายใน
   InputDecoration _boxDecoration() => InputDecoration(
     isDense: true,
     filled: true,
@@ -53,7 +64,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
     ),
   );
 
-  // วิดเจ็ตฟิลด์มาตรฐาน: ชื่อด้านบน + กล่องกรอก
   Widget _field({
     required String label,
     required TextEditingController controller,
@@ -77,7 +87,7 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
           controller: controller,
           obscureText: obscure,
           keyboardType: keyboardType,
-          decoration: _boxDecoration(), // ไม่มี label/hint ในช่อง
+          decoration: _boxDecoration(),
           validator: validator,
         ),
       ],
@@ -106,7 +116,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title + Back (ขวา)
                 Row(
                   children: [
                     const Expanded(
@@ -120,8 +129,14 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/adprofile'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ADProfilePage(),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_back),
                       color: Colors.black87,
                       splashRadius: 22,
@@ -129,8 +144,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Avatar
                 Center(
                   child: CircleAvatar(
                     radius: 65,
@@ -143,8 +156,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                   ),
                 ),
                 const SizedBox(height: 28),
-
-                // ฟอร์มการ์ด
                 Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 320),
@@ -193,8 +204,6 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                   : null,
                             ),
                             const SizedBox(height: 18),
-
-                            // ปุ่ม
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -202,11 +211,14 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                   width: 120,
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () =>
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          '/adprofile',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ADProfilePage(),
                                         ),
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
                                       foregroundColor: Colors.white,
@@ -225,10 +237,12 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                     onPressed: () {
                                       if (_formKey.currentState?.validate() ??
                                           false) {
-                                        // TODO: บันทึกรหัสใหม่
-                                        Navigator.pushReplacementNamed(
+                                        Navigator.push(
                                           context,
-                                          '/adprofile',
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const ADProfilePage(),
+                                          ),
                                         );
                                       }
                                     },
@@ -251,15 +265,12 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                     ),
                   ),
                 ),
-
                 const Spacer(),
               ],
             ),
           ),
         ),
       ),
-
-      // Bottom Navigation (Admin style: 3 ปุ่ม)
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
