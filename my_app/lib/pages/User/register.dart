@@ -73,8 +73,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     IconButton(
                       icon: const Icon(Icons.arrow_back, size: 26),
                       color: Colors.black87,
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/login'),
+                      onPressed: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      ),
                       tooltip: 'Back',
                       splashRadius: 22,
                     ),
@@ -211,7 +213,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         Center(
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.pushReplacementNamed(context, '/login');
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginPage(),
+                                ),
+                              );
                             },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(vertical: 6),

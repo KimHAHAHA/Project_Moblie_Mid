@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_profile.dart';
+import 'package:my_app/pages/User/home_login.dart';
 import 'package:my_app/pages/User/login.dart';
 
 class ADAdminPage extends StatefulWidget {
@@ -154,7 +155,7 @@ class _ADAdminPageState extends State<ADAdminPage> {
                   onTap: () {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => LoginPage()),
+                      MaterialPageRoute(builder: (_) => Home_LoginPage(idx: 0)),
                       (route) => false,
                     );
                   },

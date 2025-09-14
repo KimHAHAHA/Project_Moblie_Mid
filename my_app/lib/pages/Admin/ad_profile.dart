@@ -4,6 +4,7 @@ import 'package:my_app/pages/Admin/ad_edit_profile.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_new_password.dart';
+import 'package:my_app/pages/User/home_login.dart';
 
 class ADProfilePage extends StatefulWidget {
   const ADProfilePage({super.key});
@@ -232,7 +233,7 @@ class _ADProfilePageState extends State<ADProfilePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ADHome_LoginPage(),
+                            builder: (_) => const Home_LoginPage(idx: 0),
                           ),
                         );
                       },
