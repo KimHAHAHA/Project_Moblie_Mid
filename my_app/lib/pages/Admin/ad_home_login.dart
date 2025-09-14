@@ -114,7 +114,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
       ),
       child: Stack(
         children: [
-          // ข้อความตัวเลขด้านบนกึ่งกลาง
           Positioned(
             top: 26,
             left: 20,

@@ -25,6 +25,18 @@ class _HomePageState extends State<Home_LoginPage> {
 
   int _selectedIndex = 0;
 
+  // ===== รายการเลขที่จะแสดงบนการ์ด =====
+  final List<String> ticketNumbers = const [
+    '888888',
+    '999999',
+    '101010',
+    '123456',
+    '654321',
+    '111111',
+    '222222',
+    '333333',
+  ];
+
   @override
   void dispose() {
     for (final c in _controllers) c.dispose();
@@ -98,7 +110,8 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  Widget _ticketCard() {
+  // ===== การ์ดคูปองพร้อมตัวเลขด้านบน =====
+  Widget _ticketCard(String number) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -106,6 +119,31 @@ class _HomePageState extends State<Home_LoginPage> {
           image: AssetImage('assets/images/Cupong.png'),
           fit: BoxFit.cover,
         ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 26,
+            left: 20,
+            right: 0,
+            child: Text(
+              number,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                shadows: [
+                  Shadow(
+                    blurRadius: 2,
+                    color: Colors.white,
+                    offset: Offset(1, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -126,7 +164,7 @@ class _HomePageState extends State<Home_LoginPage> {
         case 2:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx!)),
+            MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
           );
           break;
         case 3:
@@ -152,13 +190,13 @@ class _HomePageState extends State<Home_LoginPage> {
             MaterialPageRoute(builder: (_) => const MyLotteryPage()),
           );
           break;
-        case 2: // Login
+        case 2:
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => LoginPage()),
           );
           break;
-        case 3: // Register
+        case 3:
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegisterPage()),
@@ -168,6 +206,7 @@ class _HomePageState extends State<Home_LoginPage> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -206,7 +245,7 @@ class _HomePageState extends State<Home_LoginPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    itemCount: 8,
+                    itemCount: ticketNumbers.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -214,7 +253,8 @@ class _HomePageState extends State<Home_LoginPage> {
                           crossAxisSpacing: 12,
                           childAspectRatio: 2.15,
                         ),
-                    itemBuilder: (_, __) => _ticketCard(),
+                    itemBuilder: (_, index) =>
+                        _ticketCard(ticketNumbers[index]),
                   ),
                 ),
               ],
@@ -280,16 +320,4 @@ class _HomePageState extends State<Home_LoginPage> {
       ),
     );
   }
-
-  // void idx() {
-  //   try {
-  //     var res = await http.put(Uri.parse('$url/customers/${widget.idx}'),
-  //         headers: {"Content-Type": "application/json; charset=utf-8"},
-  //         body: jsonEncode(json));
-  //     log(res.body);
-  //     var result = jsonDecode(res.body);
-  //     // Need to know json's property by reading from API Tester
-  //     log(result['message']);	}catch(err){
-  // }
-  // }
 }
