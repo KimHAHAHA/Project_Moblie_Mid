@@ -5,7 +5,8 @@ import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_profile.dart';
 
 class ADNewPasswordPage extends StatefulWidget {
-  const ADNewPasswordPage({super.key});
+  final int idx;
+  const ADNewPasswordPage({super.key, required this.idx});
 
   @override
   State<ADNewPasswordPage> createState() => _NewPasswordPageState();
@@ -34,19 +35,19 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
         );
         break;
     }
@@ -134,7 +135,7 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ADProfilePage(),
+                            builder: (_) => ADProfilePage(idx: widget.idx),
                           ),
                         );
                       },
@@ -216,7 +217,8 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const ADProfilePage(),
+                                          builder: (_) =>
+                                              ADProfilePage(idx: widget.idx),
                                         ),
                                       );
                                     },
@@ -242,7 +244,7 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) =>
-                                                const ADProfilePage(),
+                                                ADProfilePage(idx: widget.idx),
                                           ),
                                         );
                                       }

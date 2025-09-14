@@ -3,7 +3,8 @@ import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 
 class ADHome_LoginPage extends StatefulWidget {
-  const ADHome_LoginPage({super.key});
+  final int idx;
+  const ADHome_LoginPage({super.key, required this.idx});
 
   @override
   State<ADHome_LoginPage> createState() => _HomePageState();
@@ -108,19 +109,19 @@ class _HomePageState extends State<ADHome_LoginPage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
         );
         break;
     }

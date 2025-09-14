@@ -5,7 +5,15 @@ import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_profile.dart';
 
 class ADEditProfilePage extends StatefulWidget {
-  const ADEditProfilePage({super.key});
+  final int idx;
+  final String username;
+  final String phone;
+  const ADEditProfilePage({
+    super.key,
+    required this.idx,
+    required this.username,
+    required this.phone,
+  });
 
   @override
   State<ADEditProfilePage> createState() => _EditProfilePageState();
@@ -13,9 +21,16 @@ class ADEditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<ADEditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtl = TextEditingController(text: 'กี');
-  final _phoneCtl = TextEditingController(text: '05484848');
+  late TextEditingController _usernameCtl;
+  late TextEditingController _phoneCtl;
   int _selectedIndex = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameCtl = TextEditingController(text: widget.username);
+    _phoneCtl = TextEditingController(text: widget.phone);
+  }
 
   @override
   void dispose() {
@@ -31,19 +46,19 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
         );
         break;
     }
@@ -129,7 +144,7 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ADProfilePage(),
+                            builder: (_) => ADProfilePage(idx: widget.idx),
                           ),
                         );
                       },
@@ -201,7 +216,8 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const ADProfilePage(),
+                                          builder: (_) =>
+                                              ADProfilePage(idx: widget.idx),
                                         ),
                                       );
                                     },
@@ -227,7 +243,7 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) =>
-                                                const ADProfilePage(),
+                                                ADProfilePage(idx: widget.idx),
                                           ),
                                         );
                                       }

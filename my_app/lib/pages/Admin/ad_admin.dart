@@ -5,7 +5,8 @@ import 'package:my_app/pages/Admin/ad_profile.dart';
 import 'package:my_app/pages/User/home_login.dart';
 
 class ADAdminPage extends StatefulWidget {
-  const ADAdminPage({super.key});
+  final int idx;
+  const ADAdminPage({super.key, required this.idx});
 
   @override
   State<ADAdminPage> createState() => _ADAdminPageState();
@@ -21,13 +22,13 @@ class _ADAdminPageState extends State<ADAdminPage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
         );
         break;
       case 2:
@@ -128,7 +129,7 @@ class _ADAdminPageState extends State<ADAdminPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ADHome_LoginPage(),
+                              builder: (_) => ADHome_LoginPage(idx: widget.idx),
                             ),
                           );
                         }
@@ -143,7 +144,9 @@ class _ADAdminPageState extends State<ADAdminPage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ADProfilePage()),
+                      MaterialPageRoute(
+                        builder: (_) => ADProfilePage(idx: widget.idx),
+                      ),
                     );
                   },
                 ),

@@ -6,7 +6,6 @@ import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/new_password.dart';
-import 'package:my_app/pages/User/login.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

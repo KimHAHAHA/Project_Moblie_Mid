@@ -209,7 +209,9 @@ class _LoginPageState extends State<LoginPage> {
           } else if (userpostresponse.role == "admin") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ADHome_LoginPage()),
+              MaterialPageRoute(
+                builder: (context) => ADHome_LoginPage(idx: res['uid']),
+              ),
             );
           }
         })

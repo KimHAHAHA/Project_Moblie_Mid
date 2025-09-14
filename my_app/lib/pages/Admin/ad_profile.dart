@@ -1,4 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/user_profile_get_res.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_edit_profile.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
@@ -7,7 +12,8 @@ import 'package:my_app/pages/Admin/ad_new_password.dart';
 import 'package:my_app/pages/User/home_login.dart';
 
 class ADProfilePage extends StatefulWidget {
-  const ADProfilePage({super.key});
+  final int idx;
+  const ADProfilePage({super.key, required this.idx});
 
   @override
   State<ADProfilePage> createState() => _ADProfilePageState();
@@ -16,8 +22,30 @@ class ADProfilePage extends StatefulWidget {
 class _ADProfilePageState extends State<ADProfilePage> {
   int _selectedIndex = 2;
 
-  final String username = '222222';
-  final String phone = '05484848';
+  String username = '';
+  String phone = '';
+
+  String url = "";
+  String? errorText;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await _fetchProfileData();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
 
   void _onNavTapped(int i) {
     if (i == _selectedIndex) return;
@@ -26,19 +54,19 @@ class _ADProfilePageState extends State<ADProfilePage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADHome_LoginPage()),
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADLuckyPage()),
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ADAdminPage()),
+          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
         );
         break;
     }
@@ -87,7 +115,7 @@ class _ADProfilePageState extends State<ADProfilePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ADAdminPage(),
+                              builder: (_) => ADAdminPage(idx: widget.idx),
                             ),
                           );
                         }
@@ -182,7 +210,11 @@ class _ADProfilePageState extends State<ADProfilePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const ADEditProfilePage(),
+                                  builder: (_) => ADEditProfilePage(
+                                    idx: widget.idx,
+                                    username: username,
+                                    phone: phone,
+                                  ),
                                 ),
                               );
                             },
@@ -206,7 +238,8 @@ class _ADProfilePageState extends State<ADProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const ADNewPasswordPage(),
+                                builder: (_) =>
+                                    ADNewPasswordPage(idx: widget.idx),
                               ),
                             );
                           },
@@ -292,5 +325,33 @@ class _ADProfilePageState extends State<ADProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchProfileData() async {
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/profile/${widget.idx}");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      UserGetResponse decoded = userGetResponseFromJson(res.body);
+
+      setState(() {
+        username = decoded.username;
+        phone = decoded.phone;
+      });
+    } catch (e, st) {
+      log("wallet error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
   }
 }
