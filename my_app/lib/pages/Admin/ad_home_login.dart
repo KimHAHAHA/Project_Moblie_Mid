@@ -18,6 +18,18 @@ class _HomePageState extends State<ADHome_LoginPage> {
 
   int _selectedIndex = 0;
 
+  // รายการเลขที่จะแสดงบนการ์ด
+  final List<String> ticketNumbers = const [
+    '888888',
+    '999999',
+    '101010',
+    '123456',
+    '654321',
+    '111111',
+    '222222',
+    '333333',
+  ];
+
   @override
   void dispose() {
     for (final c in _controllers) c.dispose();
@@ -90,7 +102,8 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  Widget _ticketCard() {
+  // ===== การ์ดคูปองพร้อมตัวเลขด้านบน =====
+  Widget _ticketCard(String number) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -98,6 +111,32 @@ class _HomePageState extends State<ADHome_LoginPage> {
           image: AssetImage('assets/images/Cupong.png'),
           fit: BoxFit.cover,
         ),
+      ),
+      child: Stack(
+        children: [
+          // ข้อความตัวเลขด้านบนกึ่งกลาง
+          Positioned(
+            top: 26,
+            left: 20,
+            right: 0,
+            child: Text(
+              number,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                shadows: [
+                  Shadow(
+                    blurRadius: 2,
+                    color: Colors.white,
+                    offset: Offset(1, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -156,8 +195,8 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Rondom', () {
-                      setState(() {});
+                    _darkButton('Random', () {
+                      setState(() {}); // ตรงนี้คุณจะสุ่มเลข/ทำอย่างอื่นก็ได้
                     }),
                     const SizedBox(width: 12),
                     _darkButton('Confirm', () {}),
@@ -166,7 +205,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    itemCount: 8,
+                    itemCount: ticketNumbers.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -174,7 +213,8 @@ class _HomePageState extends State<ADHome_LoginPage> {
                           crossAxisSpacing: 12,
                           childAspectRatio: 2.15,
                         ),
-                    itemBuilder: (_, __) => _ticketCard(),
+                    itemBuilder: (_, index) =>
+                        _ticketCard(ticketNumbers[index]),
                   ),
                 ),
               ],
