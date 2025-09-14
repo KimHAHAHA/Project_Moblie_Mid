@@ -236,7 +236,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => LoginPage()),
+                          MaterialPageRoute(
+                            builder: (_) => Home_LoginPage(idx: 0),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
