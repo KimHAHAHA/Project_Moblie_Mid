@@ -16,7 +16,7 @@ class NewPasswordPage extends StatefulWidget {
 
 class _NewPasswordPageState extends State<NewPasswordPage> {
   final _formKey = GlobalKey<FormState>();
-  final _oldPassCtl = TextEditingController(text: '99999999');
+  final _oldPassCtl = TextEditingController();
   final _newPassCtl = TextEditingController();
   final _confirmPassCtl = TextEditingController();
 
