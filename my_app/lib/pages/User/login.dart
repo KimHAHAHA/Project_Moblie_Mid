@@ -9,6 +9,8 @@ import 'package:my_app/model/request/user_login_post_req.dart';
 import 'package:my_app/model/response/user_login_get_res.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/User/home_login.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:my_app/pages/User/register.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -120,6 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                             height: 46,
                             child: ElevatedButton(
                               onPressed: login,
+
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black87,
                                 foregroundColor: const Color.fromARGB(
@@ -145,9 +148,12 @@ class _LoginPageState extends State<LoginPage> {
                           Center(
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.pushReplacementNamed(
+                                Navigator.push(
                                   context,
-                                  '/register',
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        RegisterPage()
+                                  ),
                                 );
                               },
                               child: const Padding(
@@ -177,6 +183,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() {
+    EasyLoading.show(status: 'loading...');
     var data = UserPostRequest(
       username: usernameController.text,
       password: passwordController.text,
@@ -200,6 +207,7 @@ class _LoginPageState extends State<LoginPage> {
             value.body,
           );
           if (userpostresponse.role == "member") {
+            EasyLoading.dismiss();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -207,6 +215,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else if (userpostresponse.role == "admin") {
+            EasyLoading.dismiss();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -216,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
           }
         })
         .catchError((error) {
+          EasyLoading.dismiss();
           log('Error $error');
         });
   }
