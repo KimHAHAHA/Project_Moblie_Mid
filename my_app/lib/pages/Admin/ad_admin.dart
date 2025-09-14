@@ -3,7 +3,6 @@ import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_profile.dart';
 import 'package:my_app/pages/User/home_login.dart';
-import 'package:my_app/pages/User/login.dart';
 
 class ADAdminPage extends StatefulWidget {
   const ADAdminPage({super.key});

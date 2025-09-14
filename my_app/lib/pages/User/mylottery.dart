@@ -273,6 +273,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: const BoxDecoration(

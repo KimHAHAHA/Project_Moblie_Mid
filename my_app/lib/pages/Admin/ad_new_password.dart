@@ -102,6 +102,7 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: const BoxDecoration(
