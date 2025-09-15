@@ -10,6 +10,7 @@ import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_new_password.dart';
 import 'package:my_app/pages/User/home_login.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class ADProfilePage extends StatefulWidget {
   final int idx;
@@ -328,6 +329,8 @@ class _ADProfilePageState extends State<ADProfilePage> {
   }
 
   Future<void> _fetchProfileData() async {
+    EasyLoading.show(status: 'loading...');
+
     log(widget.idx.toString());
     try {
       final uri = Uri.parse("$url/profile/${widget.idx}");
@@ -351,6 +354,7 @@ class _ADProfilePageState extends State<ADProfilePage> {
       if (!mounted) return;
       setState(() => errorText = e.toString());
     } finally {
+      EasyLoading.dismiss();
       if (mounted) setState(() => loading = false);
     }
   }
