@@ -108,7 +108,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
       case 2:
@@ -116,13 +116,13 @@ class _MyWalletPageState extends State<MyWalletPage> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const CheckPage()),
+          MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
         );
         break;
       case 4:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
         );
         break;
     }

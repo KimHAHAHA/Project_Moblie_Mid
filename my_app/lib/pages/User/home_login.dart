@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/login.dart';
@@ -154,8 +156,9 @@ class _HomePageState extends State<Home_LoginPage> {
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+            MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
           );
+          log(widget.idx.toString());
           break;
         case 2:
           Navigator.push(
@@ -166,13 +169,13 @@ class _HomePageState extends State<Home_LoginPage> {
         case 3:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const CheckPage()),
+            MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
           );
           break;
         case 4:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ProfilePage()),
+            MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
           );
           break;
       }
@@ -183,7 +186,7 @@ class _HomePageState extends State<Home_LoginPage> {
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+            MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
           );
           break;
         case 2:

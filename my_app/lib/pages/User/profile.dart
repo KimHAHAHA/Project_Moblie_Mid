@@ -8,7 +8,8 @@ import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/new_password.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final int idx;
+  const ProfilePage({super.key, required this.idx});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -25,25 +26,25 @@ class _ProfilePageState extends State<ProfilePage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: 0)),
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MyWalletPage(idx: 0)),
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const CheckPage()),
+          MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
         );
         break;
       case 4:
@@ -106,6 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Center(
                   child: CircleAvatar(
                     radius: 67,
+                    // ignore: deprecated_member_use
                     backgroundColor: Colors.black.withOpacity(0.06),
                     child: const Icon(
                       Icons.person,
@@ -120,10 +122,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 280,
                     padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
                     decoration: BoxDecoration(
+                      // ignore: deprecated_member_use
                       color: Colors.white.withOpacity(0.92),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: Colors.black.withOpacity(0.06),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
@@ -185,7 +189,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const EditProfilePage(),
+                                  builder: (_) =>
+                                      EditProfilePage(idx: widget.idx),
                                 ),
                               );
                             },
@@ -209,7 +214,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const NewPasswordPage(),
+                                builder: (_) =>
+                                    NewPasswordPage(idx: widget.idx),
                               ),
                             );
                           },

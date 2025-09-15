@@ -7,8 +7,8 @@ import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/profile.dart';
 
 class NewPasswordPage extends StatefulWidget {
-  final int? idx;
-  const NewPasswordPage({super.key, this.idx});
+  final int idx;
+  const NewPasswordPage({super.key, required this.idx});
 
   @override
   State<NewPasswordPage> createState() => _NewPasswordPageState();
@@ -36,33 +36,31 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
-          ),
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const CheckPage()),
+          MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
         );
         break;
       case 4:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
         );
         break;
     }
@@ -150,7 +148,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ProfilePage(),
+                            builder: (_) => ProfilePage(idx: widget.idx ?? 0),
                           ),
                         );
                       },
@@ -232,7 +230,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const ProfilePage(),
+                                          builder: (_) =>
+                                              ProfilePage(idx: widget.idx),
                                         ),
                                       );
                                     },
@@ -257,7 +256,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => const ProfilePage(),
+                                            builder: (_) =>
+                                                ProfilePage(idx: widget.idx),
                                           ),
                                         );
                                       }

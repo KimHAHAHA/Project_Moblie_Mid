@@ -8,8 +8,8 @@ import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/home_login.dart'; // ถ้ามีหน้า Home หลังล็อกอิน
 
 class EditProfilePage extends StatefulWidget {
-  final int? idx;
-  const EditProfilePage({super.key, this.idx});
+  final int idx;
+  const EditProfilePage({super.key, required this.idx});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -35,37 +35,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
-          ),
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
 
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
 
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
 
       case 3: // Check
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const CheckPage()),
+          MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
         );
         break;
 
       case 4: // Profile
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
         );
         break;
     }
@@ -152,7 +150,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ProfilePage(),
+                            builder: (_) => ProfilePage(idx: widget.idx),
                           ),
                         );
                       },
@@ -232,7 +230,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const ProfilePage(),
+                                          builder: (_) =>
+                                              ProfilePage(idx: widget.idx),
                                         ),
                                       );
                                     },
@@ -258,7 +257,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => const ProfilePage(),
+                                            builder: (_) =>
+                                                ProfilePage(idx: widget.idx),
                                           ),
                                         );
                                       }

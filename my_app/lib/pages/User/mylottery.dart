@@ -7,8 +7,8 @@ import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/profile.dart';
 
 class MyLotteryPage extends StatefulWidget {
-  final int? idx; // เผื่อส่งต่อไป Wallet
-  const MyLotteryPage({super.key, this.idx});
+  final int idx; // เผื่อส่งต่อไป Wallet
+  const MyLotteryPage({super.key, required this.idx});
 
   @override
   State<MyLotteryPage> createState() => _MyLotteryPageState();
@@ -50,7 +50,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
       case 4: // Profile
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
         );
         break;
     }

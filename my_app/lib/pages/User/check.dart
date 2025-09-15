@@ -7,8 +7,8 @@ import 'package:my_app/pages/User/profile.dart';
 import 'package:my_app/pages/User/home_login.dart';
 
 class CheckPage extends StatefulWidget {
-  final int? idx;
-  const CheckPage({super.key, this.idx});
+  final int idx;
+  const CheckPage({super.key, required this.idx});
 
   @override
   State<CheckPage> createState() => _CheckPageState();
@@ -86,21 +86,19 @@ class _CheckPageState extends State<CheckPage> {
       case 0: // Home
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
-          ),
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
       case 1: // Lottery
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const MyLotteryPage()),
+          MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
       case 2: // Wallet
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
       case 3: // Check (อยู่หน้านี้แล้ว)
@@ -108,7 +106,7 @@ class _CheckPageState extends State<CheckPage> {
       case 4: // Profile
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
         );
         break;
     }
