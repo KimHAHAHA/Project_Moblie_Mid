@@ -147,8 +147,7 @@ class _CheckPageState extends State<CheckPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                Home_LoginPage(idx: widget.idx ?? 0),
+                            builder: (_) => Home_LoginPage(idx: widget.idx),
                           ),
                         );
                       },

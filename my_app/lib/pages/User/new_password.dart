@@ -148,7 +148,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ProfilePage(idx: widget.idx ?? 0),
+                            builder: (_) => ProfilePage(idx: widget.idx),
                           ),
                         );
                       },

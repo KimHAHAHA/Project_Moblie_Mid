@@ -275,7 +275,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(const SnackBar(content: Text('สมัครสำเร็จ')));
-              var message = Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );

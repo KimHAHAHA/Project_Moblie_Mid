@@ -367,7 +367,6 @@ class _TicketCard extends StatelessWidget {
   final VoidCallback? onCashout;
 
   const _TicketCard({
-    super.key,
     required this.number,
     required this.cashable,
     this.onCashout,
