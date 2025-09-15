@@ -17,37 +17,31 @@ class MyLotteryPage extends StatefulWidget {
 class _MyLotteryPageState extends State<MyLotteryPage> {
   int _selectedIndex = 1; // ตำแหน่ง Lottery
 
-  // เส้นทางการกดปุ่ม Navigation (เรียกหน้าโดยตรง)
+  // เส้นทางการกดปุ่ม Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
-      case 0: // Home
+      case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => Home_LoginPage(idx: widget.idx ?? 0),
-          ),
+          MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
-
-      case 1: // Lottery (อยู่หน้านี้แล้ว)
+      case 1:
         break;
-
-      case 2: // Wallet
+      case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx ?? 0)),
+          MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
-
-      case 3: // Check
+      case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => CheckPage(idx: widget.idx)),
         );
         break;
-
-      case 4: // Profile
+      case 4:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
@@ -57,7 +51,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
   }
 
   // ===== แสดงป๊อปอัพขึ้นเงิน =====
-  void _showCashoutDialog(String number, String date) {
+  void _showCashoutDialog(String number) {
     final gotAmountCtl = TextEditingController(text: '6 000 000');
     final feeCtl = TextEditingController(text: '200');
 
@@ -101,31 +95,15 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            right: 10,
-                            top: 8,
-                            child: Text(
-                              date,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                      child: Center(
+                        child: Text(
+                          number,
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 3,
                           ),
-                          Center(
-                            child: Text(
-                              number,
-                              style: const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 3,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -149,7 +127,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                     child: Text(
                       'ยอดเงินที่จะได้รับ',
                       style: TextStyle(
-                        color: Colors.black87.withOpacity(0.9),
+                        color: Colors.black87,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -168,10 +146,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -181,7 +155,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                     child: Text(
                       'ยอดเงินคงเหลือ',
                       style: TextStyle(
-                        color: Colors.black87.withOpacity(0.9),
+                        color: Colors.black87,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -200,10 +174,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -219,8 +189,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           child: const Text('ยกเลิก'),
                         ),
@@ -237,13 +205,11 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6B5F2D),
+                            backgroundColor: Color(0xFF6B5F2D),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           child: const Text('ขึ้นเงิน'),
                         ),
@@ -262,9 +228,9 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
   @override
   Widget build(BuildContext context) {
     final tickets = const [
-      _TicketData(number: '888888', date: '1 ก.ค. 2568', cashable: false),
-      _TicketData(number: '999999', date: '1 ก.ค. 2568', cashable: false),
-      _TicketData(number: '101010', date: '1 ก.ค. 2568', cashable: true),
+      _TicketData(number: '888888', cashable: false),
+      _TicketData(number: '999999', cashable: false),
+      _TicketData(number: '101010', cashable: true),
     ];
 
     return Scaffold(
@@ -286,7 +252,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== หัวเรื่อง + ปุ่มย้อนกลับ (เรียกหน้าโดยตรง) =====
+              // ===== หัวเรื่อง + ปุ่มย้อนกลับ =====
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
                 child: Row(
@@ -304,15 +270,12 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                Home_LoginPage(idx: widget.idx ?? 0),
+                            builder: (_) => Home_LoginPage(idx: widget.idx),
                           ),
                         );
                       },
                       icon: const Icon(Icons.arrow_back, size: 26),
                       color: Colors.black87,
-                      splashRadius: 22,
-                      tooltip: 'Back',
                     ),
                   ],
                 ),
@@ -327,7 +290,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
               ),
               const SizedBox(height: 8),
 
-              // ===== รายการบัตรแบบแนวตั้ง =====
+              // ===== รายการบัตร =====
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
@@ -337,9 +300,8 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
                     final t = tickets[index];
                     return _TicketCard(
                       number: t.number,
-                      date: t.date,
                       cashable: t.cashable,
-                      onCashout: () => _showCashoutDialog(t.number, t.date),
+                      onCashout: () => _showCashoutDialog(t.number),
                     );
                   },
                 ),
@@ -349,7 +311,7 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
         ),
       ),
 
-      // ===== แถบนำทางล่าง (5 ปุ่ม) =====
+      // ===== Bottom Navigation =====
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -391,29 +353,22 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
   }
 }
 
-// ================== Widgets / Models ==================
+// ================== Models & Widgets ==================
 
 class _TicketData {
   final String number;
-  final String date;
   final bool cashable;
-  const _TicketData({
-    required this.number,
-    required this.date,
-    required this.cashable,
-  });
+  const _TicketData({required this.number, required this.cashable});
 }
 
 class _TicketCard extends StatelessWidget {
   final String number;
-  final String date;
   final bool cashable;
   final VoidCallback? onCashout;
 
   const _TicketCard({
     super.key,
     required this.number,
-    required this.date,
     required this.cashable,
     this.onCashout,
   });
@@ -445,35 +400,18 @@ class _TicketCard extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: 10,
-                    top: 8,
-                    child: Text(
-                      date,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+              child: Center(
+                child: Text(
+                  number,
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 3,
                   ),
-                  Center(
-                    child: Text(
-                      number,
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 3,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-
           if (cashable)
             Positioned(
               right: 14,
@@ -486,7 +424,7 @@ class _TicketCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE94E1B),
+                    color: Color(0xFFE94E1B),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(

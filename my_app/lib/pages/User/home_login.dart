@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/login.dart';
@@ -34,6 +34,15 @@ class _HomePageState extends State<Home_LoginPage> {
     '222222',
     '333333',
   ];
+
+  void _fillRandomPins() {
+    final rnd = math.Random();
+    for (var i = 0; i < _controllers.length; i++) {
+      _controllers[i].text = rnd.nextInt(10).toString();
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {});
+  }
 
   @override
   void dispose() {
@@ -108,40 +117,70 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  // ===== การ์ดคูปองพร้อมตัวเลขด้านบน =====
   Widget _ticketCard(String number) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: const DecorationImage(
-          image: AssetImage('assets/images/Cupong.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 26,
-            left: 20,
-            right: 0,
-            child: Text(
-              number,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                shadows: [
-                  Shadow(
-                    blurRadius: 2,
-                    color: Colors.white,
-                    offset: Offset(1, 1),
-                  ),
+    return InkWell(
+      onTap: () {
+        if (widget.idx != 0) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              backgroundColor: const Color(0xFFFFF9E6), // เหลืองอ่อน
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                'คุณต้องการเลือกซื้อหรือไม่',
+                textAlign: TextAlign.center,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('หมายเลขที่: $number'),
+                  const Text('ราคา: 100.00'),
+                  const Text('ยอดเงินคงเหลือ: 10000.00'),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('ยกเลิก'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // TODO: ดำเนินการซื้อ
+                    Navigator.pop(context);
+                  },
+                  child: const Text('ตกลง'),
+                ),
+              ],
             ),
+          );
+        } else {
+          // ถ้า idx == 0 อาจแจ้งเตือนว่าให้ login ก่อน
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('กรุณาเข้าสู่ระบบก่อนซื้อ')),
+          );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: const DecorationImage(
+            image: AssetImage('assets/images/Cupong.png'),
+            fit: BoxFit.cover,
           ),
-        ],
+        ),
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.only(top: 26),
+        child: Text(
+          number,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
       ),
     );
   }
@@ -234,9 +273,7 @@ class _HomePageState extends State<Home_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Random', () {
-                      setState(() {});
-                    }),
+                    _darkButton('Random', _fillRandomPins),
                     const SizedBox(width: 12),
                     _darkButton('Confirm', () {}),
                   ],

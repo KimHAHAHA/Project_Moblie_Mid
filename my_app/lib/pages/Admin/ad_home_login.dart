@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
+import 'dart:math' as math;
 
 class ADHome_LoginPage extends StatefulWidget {
   final int idx;
@@ -28,6 +29,15 @@ class _HomePageState extends State<ADHome_LoginPage> {
     '222222',
     '333333',
   ];
+
+  void _fillRandomPins() {
+    final rnd = math.Random();
+    for (var i = 0; i < _controllers.length; i++) {
+      _controllers[i].text = rnd.nextInt(10).toString();
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {});
+  }
 
   @override
   void dispose() {
@@ -195,9 +205,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Random', () {
-                      setState(() {}); // ตรงนี้คุณจะสุ่มเลข/ทำอย่างอื่นก็ได้
-                    }),
+                    _darkButton('Random', _fillRandomPins),
                     const SizedBox(width: 12),
                     _darkButton('Confirm', () {}),
                   ],
