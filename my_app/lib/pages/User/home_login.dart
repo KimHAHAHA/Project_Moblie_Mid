@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/login.dart';
 import 'package:my_app/pages/User/mylottery.dart';
@@ -25,7 +22,6 @@ class _HomePageState extends State<Home_LoginPage> {
 
   int _selectedIndex = 0;
 
-  // ===== รายการเลขที่จะแสดงบนการ์ด =====
   final List<String> ticketNumbers = const [
     '888888',
     '999999',
