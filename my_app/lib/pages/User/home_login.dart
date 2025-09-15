@@ -124,7 +124,7 @@ class _HomePageState extends State<Home_LoginPage> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              backgroundColor: const Color(0xFFFFF9E6), // เหลืองอ่อน
+              backgroundColor: const Color(0xFFFFF9E6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -157,7 +157,6 @@ class _HomePageState extends State<Home_LoginPage> {
             ),
           );
         } else {
-          // ถ้า idx == 0 อาจแจ้งเตือนว่าให้ login ก่อน
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('กรุณาเข้าสู่ระบบก่อนซื้อ')),
           );
@@ -171,15 +170,21 @@ class _HomePageState extends State<Home_LoginPage> {
             fit: BoxFit.cover,
           ),
         ),
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.only(top: 26),
-        child: Text(
-          number,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 28,
+              left: 70,
+              child: Text(
+                number,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

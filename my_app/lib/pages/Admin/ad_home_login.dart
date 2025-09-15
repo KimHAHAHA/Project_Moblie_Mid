@@ -126,23 +126,14 @@ class _HomePageState extends State<ADHome_LoginPage> {
       child: Stack(
         children: [
           Positioned(
-            top: 26,
-            left: 20,
-            right: 0,
+            top: 28,
+            left: 70,
             child: Text(
               number,
-              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
-                shadows: [
-                  Shadow(
-                    blurRadius: 2,
-                    color: Colors.white,
-                    offset: Offset(1, 1),
-                  ),
-                ],
               ),
             ),
           ),

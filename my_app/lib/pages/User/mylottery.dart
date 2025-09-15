@@ -400,15 +400,22 @@ class _TicketCard extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Center(
-                child: Text(
-                  number,
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 3,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 40,
+                    left: 140,
+                    child: Text(
+                      number,
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 3,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
