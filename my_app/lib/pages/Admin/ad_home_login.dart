@@ -18,7 +18,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
 
   int _selectedIndex = 0;
 
-  // รายการเลขที่จะแสดงบนการ์ด
   final List<String> ticketNumbers = const [
     '888888',
     '999999',
@@ -32,7 +31,9 @@ class _HomePageState extends State<ADHome_LoginPage> {
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 

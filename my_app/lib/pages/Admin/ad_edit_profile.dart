@@ -304,4 +304,6 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
       ),
     );
   }
+
+  void summitProfile() {}
 }
