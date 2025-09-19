@@ -1,4 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/user_profile_get_res.dart';
 import 'package:my_app/pages/User/edit_profile.dart';
 
 import 'package:my_app/pages/User/home_login.dart';
@@ -17,8 +23,30 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 4;
-  final String username = '123456';
-  final String phone = '05484848';
+  String username = '';
+  String phone = '';
+
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await _fetchProfileData();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
 
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
@@ -189,8 +217,11 @@ class _ProfilePageState extends State<ProfilePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      EditProfilePage(idx: widget.idx),
+                                  builder: (_) => EditProfilePage(
+                                    idx: widget.idx,
+                                    username: username,
+                                    phone: phone,
+                                  ),
                                 ),
                               );
                             },
@@ -309,5 +340,36 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchProfileData() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/profile/${widget.idx}");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      UserGetResponse decoded = userGetResponseFromJson(res.body);
+
+      setState(() {
+        username = decoded.username;
+        phone = decoded.phone;
+      });
+    } catch (e, st) {
+      log("wallet error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
   }
 }

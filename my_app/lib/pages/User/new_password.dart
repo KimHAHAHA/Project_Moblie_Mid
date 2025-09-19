@@ -251,16 +251,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                   height: 40,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                ProfilePage(idx: widget.idx),
-                                          ),
-                                        );
-                                      }
+                                      chackPw();
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
@@ -325,5 +316,14 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         ),
       ),
     );
+  }
+
+  void chackPw() {
+    if (_formKey.currentState?.validate() ?? false) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
+      );
+    }
   }
 }

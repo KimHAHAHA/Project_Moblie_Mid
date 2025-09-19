@@ -9,7 +9,14 @@ import 'package:my_app/pages/User/home_login.dart'; // ถ้ามีหน้�
 
 class EditProfilePage extends StatefulWidget {
   final int idx;
-  const EditProfilePage({super.key, required this.idx});
+  String username;
+  String phone;
+  EditProfilePage({
+    super.key,
+    required this.idx,
+    required this.username,
+    required this.phone,
+  });
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -17,10 +24,16 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtl = TextEditingController(text: 'กี');
-  final _phoneCtl = TextEditingController(text: '05484848');
-
+  late TextEditingController _usernameCtl;
+  late TextEditingController _phoneCtl;
   int _selectedIndex = 4;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameCtl = TextEditingController(text: widget.username);
+    _phoneCtl = TextEditingController(text: widget.phone);
+  }
 
   @override
   void dispose() {
