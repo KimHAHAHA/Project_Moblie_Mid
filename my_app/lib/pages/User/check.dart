@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-// ปรับให้ตรงกับโปรเจกต์ของคุณ
 import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
 import 'package:my_app/pages/User/profile.dart';

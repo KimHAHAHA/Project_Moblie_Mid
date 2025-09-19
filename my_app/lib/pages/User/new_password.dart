@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/request/user_newpassword_post_req.dart';
-
 import 'package:my_app/pages/User/home_login.dart';
 import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';

@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/request/user_profile_post_req.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
@@ -23,6 +29,8 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _usernameCtl;
   late TextEditingController _phoneCtl;
+  String url = "";
+  bool loading = false;
   int _selectedIndex = 2;
 
   @override
@@ -30,6 +38,14 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
     super.initState();
     _usernameCtl = TextEditingController(text: widget.username);
     _phoneCtl = TextEditingController(text: widget.phone);
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    final config = await Configuration.getConfig();
+    setState(() {
+      url = (config["apiEndpoint"] as String).trim();
+    });
   }
 
   @override
@@ -236,18 +252,7 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
                                   width: 120,
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                ADProfilePage(idx: widget.idx),
-                                          ),
-                                        );
-                                      }
-                                    },
+                                    onPressed: onSubmit,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
                                       foregroundColor: Colors.white,
@@ -305,5 +310,47 @@ class _EditProfilePageState extends State<ADEditProfilePage> {
     );
   }
 
-  void summitProfile() {}
+  Future<void> onSubmit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    EasyLoading.show(status: 'กำลังบันทึก...');
+    setState(() => loading = true);
+
+    try {
+      var data = UserProfilePostRequest(
+        username: _usernameCtl.text,
+        phone: _phoneCtl.text,
+      );
+
+      final response = await http.put(
+        Uri.parse("$url/profile/editprofile/${widget.idx}"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: userProfilePostRequestToJson(data),
+      );
+
+      final Map<String, dynamic> res = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (res['message'] != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res['message'])));
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => ADProfilePage(idx: widget.idx)),
+      );
+    } catch (e, st) {
+      log("profile update error: $e\n$st");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('เกิดข้อผิดพลาด กรุณาลองใหม่')),
+      );
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
+  }
 }
