@@ -65,26 +65,18 @@ class _MyWalletPageState extends State<MyWalletPage> {
       }
 
       final decoded = jsonDecode(res.body);
-      log("decoded type = ${decoded.runtimeType}");
 
-      Map<String, dynamic> row;
-      if (decoded is List && decoded.isNotEmpty) {
-        row = decoded.first as Map<String, dynamic>;
-      } else if (decoded is Map<String, dynamic>) {
-        row = decoded;
-      } else {
-        throw Exception("Unexpected JSON shape");
-      }
+      final row = (decoded is List && decoded.isNotEmpty)
+          ? decoded.first as Map<String, dynamic>
+          : (decoded is Map<String, dynamic>)
+          ? decoded
+          : <String, dynamic>{};
 
       final raw = row['wallet_balance'] ?? row['balance'] ?? row['amount'] ?? 0;
-      final num balance = raw is num
-          ? raw
-          : (num.tryParse(raw.toString()) ?? 0);
+      final balance = num.tryParse(raw.toString()) ?? 0;
 
       if (!mounted) return;
-      setState(() {
-        balanceText = balance.toStringAsFixed(2);
-      });
+      setState(() => balanceText = balance.toStringAsFixed(2));
 
       log("wallet row: ${jsonEncode(row)}");
     } catch (e, st) {

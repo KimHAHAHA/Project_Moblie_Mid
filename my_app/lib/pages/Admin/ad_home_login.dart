@@ -19,7 +19,8 @@ class _HomePageState extends State<ADHome_LoginPage> {
 
   int _selectedIndex = 0;
 
-  final List<String> ticketNumbers = const [
+  // ✅ ใช้ List ปกติ (ไม่ใช่ const) เพื่อให้เพิ่มข้อมูลใหม่ได้
+  List<String> ticketNumbers = [
     '888888',
     '999999',
     '101010',
@@ -30,6 +31,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
     '333333',
   ];
 
+  // สุ่มเลขใส่ PIN 6 หลัก
   void _fillRandomPins() {
     final rnd = math.Random();
     for (var i = 0; i < _controllers.length; i++) {
@@ -37,6 +39,13 @@ class _HomePageState extends State<ADHome_LoginPage> {
     }
     FocusScope.of(context).unfocus();
     setState(() {});
+  }
+
+  // เพิ่มหมายเลขใหม่เข้าการ์ด
+  void _addTicketNumber(String number) {
+    setState(() {
+      ticketNumbers.add(number);
+    });
   }
 
   @override
@@ -198,12 +207,21 @@ class _HomePageState extends State<ADHome_LoginPage> {
                   children: [
                     _darkButton('Random', _fillRandomPins),
                     const SizedBox(width: 12),
-                    _darkButton('Confirm', () {}),
+
+                    // _darkButton('Add Ticket', () {
+                    //   final num = _controllers.map((c) => c.text).join();
+                    //   if (num.length == 6) {
+                    //     _addTicketNumber(num);
+                    //   }
+                    // }),
                   ],
                 ),
                 const SizedBox(height: 16),
+
+                // ✅ GridView scroll ได้อัตโนมัติ
                 Expanded(
                   child: GridView.builder(
+                    physics: const BouncingScrollPhysics(),
                     itemCount: ticketNumbers.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(

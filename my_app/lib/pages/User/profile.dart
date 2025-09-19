@@ -364,7 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
         phone = decoded.phone;
       });
     } catch (e, st) {
-      log("wallet error: $e\n$st");
+      log("profile error: $e\n$st");
       if (!mounted) return;
       setState(() => errorText = e.toString());
     } finally {

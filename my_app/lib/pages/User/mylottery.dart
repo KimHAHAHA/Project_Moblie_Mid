@@ -1,13 +1,18 @@
-import 'package:flutter/material.dart';
+import 'dart:developer';
 
-// === ปรับ path ให้ตรงกับโปรเจกต์คุณ ===
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/lotto_get_res.dart';
+
 import 'package:my_app/pages/User/home_login.dart';
 import 'package:my_app/pages/User/mywallet.dart';
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/profile.dart';
 
 class MyLotteryPage extends StatefulWidget {
-  final int idx; // เผื่อส่งต่อไป Wallet
+  final int idx;
   const MyLotteryPage({super.key, required this.idx});
 
   @override
@@ -15,9 +20,31 @@ class MyLotteryPage extends StatefulWidget {
 }
 
 class _MyLotteryPageState extends State<MyLotteryPage> {
-  int _selectedIndex = 1; // ตำแหน่ง Lottery
+  int _selectedIndex = 1;
 
-  // เส้นทางการกดปุ่ม Navigation
+  List<LottosGetResponse> lottos = [];
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await mylotto();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -227,12 +254,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tickets = const [
-      _TicketData(number: '888888', cashable: false),
-      _TicketData(number: '999999', cashable: false),
-      _TicketData(number: '101010', cashable: true),
-    ];
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -290,21 +311,24 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
               ),
               const SizedBox(height: 8),
 
-              // ===== รายการบัตร =====
+              // ===== รายการบัตรจาก API =====
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-                  itemCount: tickets.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 14),
-                  itemBuilder: (context, index) {
-                    final t = tickets[index];
-                    return _TicketCard(
-                      number: t.number,
-                      cashable: t.cashable,
-                      onCashout: () => _showCashoutDialog(t.number),
-                    );
-                  },
-                ),
+                child: (loading)
+                    ? const Center(child: CircularProgressIndicator())
+                    : (lottos.isEmpty)
+                    ? const Center(child: Text("ยังไม่มีลอตเตอรี่"))
+                    : GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                        itemCount: lottos.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 2.15,
+                            ),
+                        itemBuilder: (_, index) => _ticketCard(lottos[index]),
+                      ),
               ),
             ],
           ),
@@ -351,97 +375,206 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
       ),
     );
   }
+
+  Widget _ticketCard(LottosGetResponse lotto) {
+    return InkWell(
+      onTap: () {
+        if (widget.idx != 0) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              backgroundColor: const Color(0xFFFFF9E6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                'คุณต้องการเลือกซื้อหรือไม่',
+                textAlign: TextAlign.center,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('หมายเลขที่: ${lotto.lottoNumber}'),
+                  Text('ราคา: ${lotto.price}'),
+                  const Text('ยอดเงินคงเหลือ: 10000.00'),
+                  Text('สถานะ: ${lotto.lottoStatus}'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('ยกเลิก'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Home_LoginPage(idx: widget.idx),
+                      ),
+                    );
+                  },
+                  child: const Text('ตกลง'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('กรุณาเข้าสู่ระบบก่อนซื้อ')),
+          );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: const DecorationImage(
+            image: AssetImage('assets/images/Cupong.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 28,
+              left: 70,
+              child: Text(
+                lotto.lottoNumber,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> mylotto() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery/${widget.idx}");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      var decoded = lottosGetResponseFromJson(res.body);
+
+      if (!mounted) return; // ✅ ป้องกัน setState หลัง dispose
+      setState(() {
+        lottos = decoded;
+      });
+    } catch (e, st) {
+      log("profile error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
+  }
 }
 
 // ================== Models & Widgets ==================
 
-class _TicketData {
-  final String number;
-  final bool cashable;
-  const _TicketData({required this.number, required this.cashable});
-}
+// class _TicketData {
+//   final String number;
+//   final bool cashable;
+//   const _TicketData({required this.number, required this.cashable});
+// }
 
-class _TicketCard extends StatelessWidget {
-  final String number;
-  final bool cashable;
-  final VoidCallback? onCashout;
+// class _TicketCard extends StatelessWidget {
+//   final String number;
+//   final bool cashable;
+//   final VoidCallback? onCashout;
 
-  const _TicketCard({
-    required this.number,
-    required this.cashable,
-    this.onCashout,
-  });
+//   const _TicketCard({
+//     required this.number,
+//     required this.cashable,
+//     this.onCashout,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          AspectRatio(
-            aspectRatio: 2.9,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/Cupong.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 40,
-                    left: 140,
-                    child: Text(
-                      number,
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 3,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (cashable)
-            Positioned(
-              right: 14,
-              bottom: 10,
-              child: GestureDetector(
-                onTap: onCashout,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE94E1B),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'ขึ้นเงิน',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(8),
+//       decoration: BoxDecoration(
+//         color: Colors.white.withOpacity(0.9),
+//         borderRadius: BorderRadius.circular(16),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.08),
+//             blurRadius: 6,
+//             offset: const Offset(0, 3),
+//           ),
+//         ],
+//       ),
+//       child: Stack(
+//         children: [
+//           AspectRatio(
+//             aspectRatio: 2.9,
+//             child: Container(
+//               decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(12),
+//                 image: const DecorationImage(
+//                   image: AssetImage('assets/images/Cupong.png'),
+//                   fit: BoxFit.cover,
+//                 ),
+//               ),
+//               child: Stack(
+//                 children: [
+//                   Positioned(
+//                     top: 40,
+//                     left: 140,
+//                     child: Text(
+//                       number,
+//                       style: const TextStyle(
+//                         fontSize: 36,
+//                         fontWeight: FontWeight.w700,
+//                         letterSpacing: 3,
+//                         color: Colors.black87,
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//           if (cashable)
+//             Positioned(
+//               right: 14,
+//               bottom: 10,
+//               child: GestureDetector(
+//                 onTap: onCashout,
+//                 child: Container(
+//                   padding: const EdgeInsets.symmetric(
+//                     horizontal: 10,
+//                     vertical: 4,
+//                   ),
+//                   decoration: BoxDecoration(
+//                     color: Color(0xFFE94E1B),
+//                     borderRadius: BorderRadius.circular(20),
+//                   ),
+//                   child: const Text(
+//                     'ขึ้นเงิน',
+//                     style: TextStyle(color: Colors.white, fontSize: 12),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }

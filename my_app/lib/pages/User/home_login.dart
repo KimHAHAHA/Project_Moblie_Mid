@@ -1,6 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/request/user_buy_post_req.dart';
+import 'package:my_app/model/response/lotto_get_res.dart';
 import 'package:my_app/pages/User/check.dart';
 import 'package:my_app/pages/User/login.dart';
 import 'package:my_app/pages/User/mylottery.dart';
@@ -17,23 +23,35 @@ class Home_LoginPage extends StatefulWidget {
 }
 
 class _HomePageState extends State<Home_LoginPage> {
+  List<LottosGetResponse> lottos = [];
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
 
-  int _selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
 
-  final List<String> ticketNumbers = const [
-    '888888',
-    '999999',
-    '101010',
-    '123456',
-    '654321',
-    '111111',
-    '222222',
-    '333333',
-  ];
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await _fetchLottoData();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
+  int _selectedIndex = 0;
 
   void _fillRandomPins() {
     final rnd = math.Random();
@@ -66,7 +84,6 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  // ---------- PIN container
   Widget _pinContainer() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -117,7 +134,7 @@ class _HomePageState extends State<Home_LoginPage> {
     );
   }
 
-  Widget _ticketCard(String number) {
+  Widget _ticketCard(LottosGetResponse lotto) {
     return InkWell(
       onTap: () {
         if (widget.idx != 0) {
@@ -136,9 +153,10 @@ class _HomePageState extends State<Home_LoginPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('หมายเลขที่: $number'),
-                  const Text('ราคา: 100.00'),
+                  Text('หมายเลขที่: ${lotto.lottoNumber}'),
+                  Text('ราคา: ${lotto.price}'),
                   const Text('ยอดเงินคงเหลือ: 10000.00'),
+                  Text('สถานะ: ${lotto.lottoStatus}'),
                 ],
               ),
               actions: [
@@ -148,8 +166,13 @@ class _HomePageState extends State<Home_LoginPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO: ดำเนินการซื้อ
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => Home_LoginPage(idx: widget.idx),
+                      ),
+                    );
+                    _onBuy(widget.idx, lotto.lid); // ✅ เรียก API ซื้อ
                   },
                   child: const Text('ตกลง'),
                 ),
@@ -176,7 +199,7 @@ class _HomePageState extends State<Home_LoginPage> {
               top: 28,
               left: 70,
               child: Text(
-                number,
+                lotto.lottoNumber,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -286,7 +309,7 @@ class _HomePageState extends State<Home_LoginPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    itemCount: ticketNumbers.length,
+                    itemCount: lottos.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -294,8 +317,7 @@ class _HomePageState extends State<Home_LoginPage> {
                           crossAxisSpacing: 12,
                           childAspectRatio: 2.15,
                         ),
-                    itemBuilder: (_, index) =>
-                        _ticketCard(ticketNumbers[index]),
+                    itemBuilder: (_, index) => _ticketCard(lottos[index]),
                   ),
                 ),
               ],
@@ -360,5 +382,66 @@ class _HomePageState extends State<Home_LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchLottoData() async {
+    EasyLoading.show(status: 'loading...');
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery");
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+
+      var decoded = lottosGetResponseFromJson(res.body);
+
+      if (!mounted) return; // ✅ ป้องกัน setState หลัง dispose
+      setState(() {
+        lottos = decoded;
+      });
+    } catch (e, st) {
+      log("lottos error: $e\n$st");
+      if (!mounted) return; // ✅ เพิ่มตรงนี้
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) {
+        // ✅ เพิ่มตรงนี้
+        EasyLoading.dismiss();
+        setState(() => loading = false);
+      }
+    }
+  }
+
+  Future<void> _onBuy(int uid, int lid) async {
+    try {
+      var data = UserBuyPostRequest(uid: uid, lid: lid);
+
+      final response = await http.post(
+        Uri.parse("$url/lottery/buy"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: userBuyPostRequestToJson(data),
+      );
+
+      final Map<String, dynamic> res = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (res['message'] != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res['message'])));
+      }
+    } catch (e, st) {
+      log("lottery buy error: $e\n$st");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('เกิดข้อผิดพลาด กรุณาลองใหม่')),
+      );
+    }
   }
 }
