@@ -1,4 +1,11 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/request/user_newpassword_post_req.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
@@ -19,6 +26,22 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
   final _confirmPassCtl = TextEditingController();
 
   int _selectedIndex = 2;
+
+  String url = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    final config = await Configuration.getConfig();
+    setState(() {
+      url = (config["apiEndpoint"] as String).trim();
+    });
+  }
 
   @override
   void dispose() {
@@ -237,18 +260,7 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
                                   width: 120,
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                ADProfilePage(idx: widget.idx),
-                                          ),
-                                        );
-                                      }
-                                    },
+                                    onPressed: chackPw,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF3D3D3D),
                                       foregroundColor: Colors.white,
@@ -304,5 +316,53 @@ class _NewPasswordPageState extends State<ADNewPasswordPage> {
         ),
       ),
     );
+  }
+
+  Future<void> chackPw() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    EasyLoading.show(status: 'กำลังบันทึก...');
+    setState(() => loading = true);
+
+    try {
+      var data = PassPostReqest(
+        oldPassword: _oldPassCtl.text,
+        newPassword: _newPassCtl.text,
+      );
+
+      if (_confirmPassCtl.text == _newPassCtl.text) {
+        final response = await http.put(
+          Uri.parse("$url/password/${widget.idx}"),
+          headers: {"Content-Type": "application/json; charset=utf-8"},
+          body: passPostReqestToJson(data),
+        );
+
+        final Map<String, dynamic> res = jsonDecode(response.body);
+
+        if (!mounted) return;
+
+        if (res['message'] != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(res['message'])));
+        }
+
+        EasyLoading.showSuccess('เปลี่ยนรหัสผ่านสำเร็จ 🎉');
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => ADProfilePage(idx: widget.idx)),
+        );
+      }
+    } catch (e, st) {
+      log("password update error: $e\n$st");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('เกิดข้อผิดพลาด กรุณาลองใหม่')),
+      );
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
   }
 }
