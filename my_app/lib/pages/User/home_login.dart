@@ -24,6 +24,8 @@ class Home_LoginPage extends StatefulWidget {
 
 class _HomePageState extends State<Home_LoginPage> {
   List<LottosGetResponse> lottos = [];
+  List<LottosGetResponse> allLottos = [];
+
   String url = "";
   String errorText = "";
   bool loading = false;
@@ -303,7 +305,7 @@ class _HomePageState extends State<Home_LoginPage> {
                   children: [
                     _darkButton('Random', _fillRandomPins),
                     const SizedBox(width: 12),
-                    _darkButton('Confirm', () {}),
+                    _darkButton('Confirm', _searchLottoByNumber),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -386,7 +388,6 @@ class _HomePageState extends State<Home_LoginPage> {
 
   Future<void> _fetchLottoData() async {
     EasyLoading.show(status: 'loading...');
-    log(widget.idx.toString());
     try {
       final uri = Uri.parse("$url/lottery");
       final res = await http.get(
@@ -398,23 +399,47 @@ class _HomePageState extends State<Home_LoginPage> {
         throw Exception("HTTP ${res.statusCode}: ${res.body}");
       }
 
-      var decoded = lottosGetResponseFromJson(res.body);
+      final decoded = lottosGetResponseFromJson(res.body);
 
-      if (!mounted) return; // ✅ ป้องกัน setState หลัง dispose
+      if (!mounted) return;
       setState(() {
-        lottos = decoded;
+        allLottos = decoded; // ✅ เก็บต้นฉบับ
+        lottos = decoded; // ✅ แสดงเริ่มต้นทั้งหมด
       });
     } catch (e, st) {
       log("lottos error: $e\n$st");
-      if (!mounted) return; // ✅ เพิ่มตรงนี้
+      if (!mounted) return;
       setState(() => errorText = e.toString());
     } finally {
       if (mounted) {
-        // ✅ เพิ่มตรงนี้
         EasyLoading.dismiss();
         setState(() => loading = false);
       }
     }
+  }
+
+  // ฟังก์ชันค้นหา
+  void _searchLottoByNumber() {
+    final number = _controllers.map((c) => c.text).join();
+
+    if (number.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("กรุณากรอกเลขให้ครบ 6 หลัก")),
+      );
+      return;
+    }
+
+    final results = allLottos.where((l) => l.lottoNumber == number).toList();
+
+    if (results.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("ไม่พบหมายเลข $number")));
+    }
+
+    setState(() {
+      lottos = results;
+    });
   }
 
   Future<void> _onBuy(int uid, int lid) async {
