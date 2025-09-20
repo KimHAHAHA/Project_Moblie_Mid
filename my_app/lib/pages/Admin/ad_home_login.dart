@@ -1,4 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/lotto_get_res.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'dart:math' as math;
@@ -12,31 +18,96 @@ class ADHome_LoginPage extends StatefulWidget {
 }
 
 class _HomePageState extends State<ADHome_LoginPage> {
+  List<LottosGetResponse> lottos = [];
+  List<LottosGetResponse> allLottos = [];
+
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
 
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await _fetchLottoData();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
   int _selectedIndex = 0;
 
-  final List<String> ticketNumbers = const [
-    '888888',
-    '999999',
-    '101010',
-    '123456',
-    '654321',
-    '111111',
-    '222222',
-    '333333',
-  ];
-
-  void _fillRandomPins() {
-    final rnd = math.Random();
-    for (var i = 0; i < _controllers.length; i++) {
-      _controllers[i].text = rnd.nextInt(10).toString();
+  void _fillFromRandomLotto() {
+    if (allLottos.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('ไม่มีข้อมูลสลากให้สุ่ม')));
+      return;
     }
+
+    final rnd = math.Random();
+    // ✅ สุ่มเลือก 1 ใบจากรายการทั้งหมด
+    final randomLotto = allLottos[rnd.nextInt(allLottos.length)];
+
+    // ✅ กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
+    final number = randomLotto.lottoNumber.padLeft(
+      6,
+      '0',
+    ); // กันกรณีเลขไม่ครบ 6 หลัก
+    for (var i = 0; i < _controllers.length; i++) {
+      _controllers[i].text = number[i];
+    }
+  }
+
+  void _resetPins() {
+    // เคลียร์ตัวเลขในทุกช่อง
+    for (final c in _controllers) {
+      c.clear();
+    }
+
+    // แสดงรายการลอตเตอรี่ทั้งหมดกลับมา
+    setState(() {
+      lottos = List.from(allLottos);
+    });
+
+    // เอาโฟกัสออกจาก text field
     FocusScope.of(context).unfocus();
-    setState(() {});
+  }
+
+  void _searchLottoByNumber() {
+    final number = _controllers.map((c) => c.text).join();
+
+    if (number.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("กรุณากรอกเลขให้ครบ 6 หลัก")),
+      );
+      return;
+    }
+
+    final results = allLottos.where((l) => l.lottoNumber == number).toList();
+
+    if (results.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("ไม่พบหมายเลข $number")));
+    }
+
+    setState(() {
+      lottos = results;
+    });
   }
 
   @override
@@ -114,30 +185,35 @@ class _HomePageState extends State<ADHome_LoginPage> {
   }
 
   // ===== การ์ดคูปองพร้อมตัวเลขด้านบน =====
-  Widget _ticketCard(String number) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: const DecorationImage(
-          image: AssetImage('assets/images/Cupong.png'),
-          fit: BoxFit.cover,
+  Widget _ticketCard(LottosGetResponse lotto) {
+    return InkWell(
+      onTap: () {
+        if (widget.idx != 0) {}
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: const DecorationImage(
+            image: AssetImage('assets/images/Cupong.png'),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 28,
-            left: 70,
-            child: Text(
-              number,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 28,
+              left: 70,
+              child: Text(
+                lotto.lottoNumber,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -196,15 +272,17 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Random', _fillRandomPins),
+                    _darkButton('Random', _fillFromRandomLotto),
                     const SizedBox(width: 12),
-                    _darkButton('Confirm', () {}),
+                    _darkButton('Confirm', _searchLottoByNumber),
+                    const SizedBox(width: 12),
+                    _darkButton('Reset', _resetPins),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    itemCount: ticketNumbers.length,
+                    itemCount: lottos.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -212,8 +290,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
                           crossAxisSpacing: 12,
                           childAspectRatio: 2.15,
                         ),
-                    itemBuilder: (_, index) =>
-                        _ticketCard(ticketNumbers[index]),
+                    itemBuilder: (_, index) => _ticketCard(lottos[index]),
                   ),
                 ),
               ],
@@ -251,5 +328,37 @@ class _HomePageState extends State<ADHome_LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchLottoData() async {
+    EasyLoading.show(status: 'loading...');
+    try {
+      final uri = Uri.parse("$url/lottery");
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+
+      final decoded = lottosGetResponseFromJson(res.body);
+
+      if (!mounted) return;
+      setState(() {
+        allLottos = decoded;
+        lottos = decoded;
+      });
+    } catch (e, st) {
+      log("lottos error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) {
+        EasyLoading.dismiss();
+        setState(() => loading = false);
+      }
+    }
   }
 }
