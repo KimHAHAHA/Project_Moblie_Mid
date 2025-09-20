@@ -139,17 +139,6 @@ class _CheckPageState extends State<CheckPage> {
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => Home_LoginPage(idx: widget.idx),
-                          ),
-                        );
-                      },
-                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
