@@ -55,13 +55,41 @@ class _HomePageState extends State<Home_LoginPage> {
 
   int _selectedIndex = 0;
 
-  void _fillRandomPins() {
-    final rnd = math.Random();
-    for (var i = 0; i < _controllers.length; i++) {
-      _controllers[i].text = rnd.nextInt(10).toString();
+  void _fillFromRandomLotto() {
+    if (allLottos.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('ไม่มีข้อมูลสลากให้สุ่ม')));
+      return;
     }
+
+    final rnd = math.Random();
+    // ✅ สุ่มเลือก 1 ใบจากรายการทั้งหมด
+    final randomLotto = allLottos[rnd.nextInt(allLottos.length)];
+
+    // ✅ กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
+    final number = randomLotto.lottoNumber.padLeft(
+      6,
+      '0',
+    ); // กันกรณีเลขไม่ครบ 6 หลัก
+    for (var i = 0; i < _controllers.length; i++) {
+      _controllers[i].text = number[i];
+    }
+  }
+
+  void _resetPins() {
+    // เคลียร์ตัวเลขในทุกช่อง
+    for (final c in _controllers) {
+      c.clear();
+    }
+
+    // แสดงรายการลอตเตอรี่ทั้งหมดกลับมา
+    setState(() {
+      lottos = List.from(allLottos);
+    });
+
+    // เอาโฟกัสออกจาก text field
     FocusScope.of(context).unfocus();
-    setState(() {});
   }
 
   @override
@@ -157,7 +185,6 @@ class _HomePageState extends State<Home_LoginPage> {
                 children: [
                   Text('หมายเลขที่: ${lotto.lottoNumber}'),
                   Text('ราคา: ${lotto.price}'),
-                  const Text('ยอดเงินคงเหลือ: 10000.00'),
                   Text('สถานะ: ${lotto.lottoStatus}'),
                 ],
               ),
@@ -303,9 +330,11 @@ class _HomePageState extends State<Home_LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _darkButton('Random', _fillRandomPins),
+                    _darkButton('Random', _fillFromRandomLotto),
                     const SizedBox(width: 12),
                     _darkButton('Confirm', _searchLottoByNumber),
+                    const SizedBox(width: 12),
+                    _darkButton('Reset', _resetPins),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -366,10 +395,6 @@ class _HomePageState extends State<Home_LoginPage> {
                     BottomNavigationBarItem(
                       icon: Icon(Icons.home),
                       label: 'Home',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.card_giftcard),
-                      label: 'Lottery',
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.login),
