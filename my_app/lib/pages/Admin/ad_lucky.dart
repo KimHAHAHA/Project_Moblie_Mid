@@ -128,7 +128,7 @@ class _HomePageState extends State<ADLuckyPage> {
           children: [
             Expanded(
               child: DropdownButtonFormField<String>(
-                initialValue: _drawType,
+                value: _drawType,
                 items: _drawTypeItems.entries
                     .map(
                       (e) =>
