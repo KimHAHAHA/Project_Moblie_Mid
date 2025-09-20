@@ -282,16 +282,10 @@ class _HomePageState extends State<Home_LoginPage> {
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
-          );
-          break;
-        case 2:
-          Navigator.push(
-            context,
             MaterialPageRoute(builder: (_) => LoginPage()),
           );
           break;
-        case 3:
+        case 2:
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegisterPage()),
