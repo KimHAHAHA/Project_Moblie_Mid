@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -22,12 +23,18 @@ class _CheckPageState extends State<CheckPage> {
   int _selectedIndex = 3;
   List<LottosGetResponse> lottos = [];
   List<RewardGetResponse> rewards = [];
+  RewardGetResponse? rewardJackpot;
+  RewardGetResponse? rewardSecond;
+  RewardGetResponse? rewardThird;
+  RewardGetResponse? rewardLast3;
+  RewardGetResponse? rewardLast2;
+  List<RewardGetResponse> myWinningRewards = [];
+  Map<int, RewardGetResponse> myWinsByRank = {};
+  bool get hasWin => myWinningRewards.isNotEmpty;
 
   String url = "";
   String errorText = "";
   bool loading = false;
-
-  bool showResult = false; // ✅ ควบคุมการแสดงผลการ์ดล่าง
 
   @override
   void initState() {
@@ -48,7 +55,6 @@ class _CheckPageState extends State<CheckPage> {
     }
   }
 
-  // ✅ การ์ด (รองรับ onTap)
   Widget _ticketCard(
     String title, {
     bool centerTitle = false,
@@ -102,24 +108,12 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
-  // ✅ ปุ่มสีเข้ม
-  Widget _darkSmallButton(String label, VoidCallback onTap) {
-    return ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF3D3D3D),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        elevation: 0,
-      ),
-      child: Text(label),
-    );
-  }
-
-  // ✅ Popup แจ้งรางวัล
-  void _showPrizeDialog(String number, String prizeName, String amount) {
+  void _showPrizeDialog(
+    int rid,
+    String number,
+    String prizeName,
+    String amount,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -174,9 +168,11 @@ class _CheckPageState extends State<CheckPage> {
               backgroundColor: Colors.brown,
               foregroundColor: Colors.white,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: ไปหน้า "ขึ้นเงิน"
+            onPressed: () async {
+              await getmoney(rid);
+              if (!mounted) return;
+              Navigator.pop(context); // ปิด dialog
+              await getrewards(); // โหลดรางวัลใหม่ (แล้ว _recomputeWins() จะถูกเรียก)
             },
             child: const Text("ขึ้นเงิน"),
           ),
@@ -185,7 +181,6 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
-  // ✅ Bottom Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -258,39 +253,39 @@ class _CheckPageState extends State<CheckPage> {
                           child: _ticketCard(
                             'Jackpot',
                             centerTitle: true,
-                            number: '000000',
+                            number: rewardJackpot?.lottoNumber,
                           ),
                         ),
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _ticketCard('Second Prize', number: '111111'),
-                            _ticketCard('Third Prize', number: '222222'),
+                            _ticketCard(
+                              'Second Prize',
+                              number: rewardSecond?.lottoNumber,
+                            ),
+                            _ticketCard(
+                              'Third Prize',
+                              number: rewardThird?.lottoNumber,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _ticketCard('Last 3 Numbers', number: '333333'),
-                            _ticketCard('Last 2 Numbers', number: '555555'),
+                            _ticketCard(
+                              'Last 3 Numbers',
+                              number: _lastNDigits(rewardLast3?.lottoNumber, 3),
+                            ),
+                            _ticketCard(
+                              'Last 2 Numbers',
+                              number: _lastNDigits(rewardLast2?.lottoNumber, 2),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 14),
-
-                        // ปุ่ม Check
-                        Center(
-                          child: _darkSmallButton('Check', () {
-                            setState(() {
-                              showResult = true;
-                            });
-                          }),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // แสดงการ์ดล่างเมื่อกด Check
-                        if (showResult) ...[
+                        if (hasWin) ...[
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -303,28 +298,26 @@ class _CheckPageState extends State<CheckPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _ticketCard(
-                                'My Prize',
-                                number: '999999',
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: myWinningRewards.map((rw) {
+                              final displayNumber = (rw.rewardRank == 4)
+                                  ? (_lastNDigits(rw.lottoNumber, 3) ?? '')
+                                  : (rw.rewardRank == 5)
+                                  ? (_lastNDigits(rw.lottoNumber, 2) ?? '')
+                                  : rw.lottoNumber;
+                              return _ticketCard(
+                                _prizeName(rw.rewardRank),
+                                number: displayNumber,
                                 onTap: () => _showPrizeDialog(
-                                  '999999',
-                                  'Jackpot',
-                                  '6,000,000',
+                                  rw.rid,
+                                  displayNumber,
+                                  _prizeName(rw.rewardRank),
+                                  rw.prizeAmount,
                                 ),
-                              ),
-                              _ticketCard(
-                                'My Prize',
-                                number: '555555',
-                                onTap: () => _showPrizeDialog(
-                                  '555555',
-                                  'Second Prize',
-                                  '200,000',
-                                ),
-                              ),
-                            ],
+                              );
+                            }).toList(),
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -377,7 +370,23 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
-  // ฟังก์ชันโหลดข้อมูล (ยังคงไว้)
+  String _prizeName(int rank) {
+    switch (rank) {
+      case 1:
+        return 'Jackpot';
+      case 2:
+        return 'Second Prize';
+      case 3:
+        return 'Third Prize';
+      case 4:
+        return 'Last 3 Numbers';
+      case 5:
+        return 'Last 2 Numbers';
+      default:
+        return 'Prize';
+    }
+  }
+
   Future<void> mylotto() async {
     EasyLoading.show(status: 'loading...');
     try {
@@ -394,6 +403,7 @@ class _CheckPageState extends State<CheckPage> {
       setState(() {
         lottos = decoded;
       });
+      _recomputeWins();
     } catch (e, st) {
       log("lotto error: $e\n$st");
       if (!mounted) return;
@@ -407,7 +417,7 @@ class _CheckPageState extends State<CheckPage> {
   Future<void> getrewards() async {
     EasyLoading.show(status: 'loading...');
     try {
-      final uri = Uri.parse("$url/lottery/rewards");
+      final uri = Uri.parse("$url/lottery/rawards");
       final res = await http.get(
         uri,
         headers: {"Content-Type": "application/json; charset=utf-8"},
@@ -416,10 +426,22 @@ class _CheckPageState extends State<CheckPage> {
         throw Exception("HTTP ${res.statusCode}: ${res.body}");
       }
       var decoded = rewardGetResponseFromJson(res.body);
-      if (!mounted) return;
+
       setState(() {
         rewards = decoded;
+
+        final byRank = <int, RewardGetResponse>{};
+        for (final r in decoded) {
+          byRank[r.rewardRank] = r;
+        }
+
+        rewardJackpot = byRank[1];
+        rewardSecond = byRank[2];
+        rewardThird = byRank[3];
+        rewardLast3 = byRank[4];
+        rewardLast2 = byRank[5];
       });
+      _recomputeWins();
     } catch (e, st) {
       log("reward error: $e\n$st");
       if (!mounted) return;
@@ -427,6 +449,47 @@ class _CheckPageState extends State<CheckPage> {
     } finally {
       EasyLoading.dismiss();
       if (mounted) setState(() => loading = false);
+    }
+  }
+
+  String? _lastNDigits(String? s, int n) {
+    if (s == null) return null;
+    final t = s.trim();
+    if (t.isEmpty) return null;
+
+    if (t.length <= n) return t;
+    return t.substring(t.length - n);
+  }
+
+  void _recomputeWins() {
+    final myLids = lottos.map((e) => e.lid).toSet();
+
+    // แสดงเฉพาะรางวัลของเรา + ยังไม่ขึ้นเงิน (status == 0)
+    final wins = rewards
+        .where((r) => myLids.contains(r.lid) && (r.claimStatus == 0))
+        .toList();
+
+    setState(() {
+      myWinningRewards = wins;
+    });
+  }
+
+  Future<void> getmoney(int rid) async {
+    log(rid.toString());
+    final uri = Uri.parse("$url/lottery/rawards/claim/$rid");
+    final response = await http.put(
+      uri,
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+    );
+
+    final Map<String, dynamic> res = jsonDecode(response.body);
+
+    if (!mounted) return;
+
+    if (res['message'] != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(res['message'])));
     }
   }
 }
