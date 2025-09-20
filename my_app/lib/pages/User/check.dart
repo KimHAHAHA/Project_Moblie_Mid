@@ -20,8 +20,32 @@ class CheckPage extends StatefulWidget {
 
 class _CheckPageState extends State<CheckPage> {
   int _selectedIndex = 3;
+  List<LottosGetResponse> lottos = [];
+  List<RewardGetResponse> rewards = [];
 
-  // ฟังก์ชันการ์ด ใช้ได้ทั้งมี/ไม่มีเลข
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await mylotto();
+      await getrewards();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
   Widget _ticketCard(String title, {bool centerTitle = false, String? number}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -149,7 +173,6 @@ class _CheckPageState extends State<CheckPage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Jackpot
                         Center(
                           child: _ticketCard(
                             'Jackpot',
@@ -158,8 +181,6 @@ class _CheckPageState extends State<CheckPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Second / Third
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -168,8 +189,6 @@ class _CheckPageState extends State<CheckPage> {
                           ],
                         ),
                         const SizedBox(height: 16),
-
-                        // Last 3 / Last 2
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -194,8 +213,6 @@ class _CheckPageState extends State<CheckPage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-
-                        // ตัวอย่างการ์ดถูกรางวัล
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -251,5 +268,68 @@ class _CheckPageState extends State<CheckPage> {
         ),
       ),
     );
+  }
+
+  Future<void> mylotto() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery/${widget.idx}");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      var decoded = lottosGetResponseFromJson(res.body);
+      log(decoded.length.toString());
+
+      if (!mounted) return;
+      setState(() {
+        lottos = decoded;
+      });
+    } catch (e, st) {
+      log("lotto error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> getrewards() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery/rawards");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      var decoded = rewardGetResponseFromJson(res.body);
+
+      if (!mounted) return;
+      setState(() {
+        rewards = decoded;
+      });
+    } catch (e, st) {
+      log("reward error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
   }
 }

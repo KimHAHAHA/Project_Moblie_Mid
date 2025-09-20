@@ -19,6 +19,7 @@ class RewardGetResponse {
   int rewardRank;
   String prizeAmount;
   int claimStatus;
+  String lottoNumber;
 
   RewardGetResponse({
     required this.rid,
@@ -27,6 +28,7 @@ class RewardGetResponse {
     required this.rewardRank,
     required this.prizeAmount,
     required this.claimStatus,
+    required this.lottoNumber,
   });
 
   factory RewardGetResponse.fromJson(Map<String, dynamic> json) =>
@@ -37,6 +39,7 @@ class RewardGetResponse {
         rewardRank: json["reward_rank"],
         prizeAmount: json["prize_amount"],
         claimStatus: json["claim_status"],
+        lottoNumber: json["lotto_number"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,5 +49,6 @@ class RewardGetResponse {
     "reward_rank": rewardRank,
     "prize_amount": prizeAmount,
     "claim_status": claimStatus,
+    "lotto_number": lottoNumber,
   };
 }
