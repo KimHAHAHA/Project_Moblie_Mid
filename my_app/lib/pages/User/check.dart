@@ -27,6 +27,8 @@ class _CheckPageState extends State<CheckPage> {
   String errorText = "";
   bool loading = false;
 
+  bool showResult = false; // ✅ ควบคุมการแสดงผลการ์ดล่าง
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +48,13 @@ class _CheckPageState extends State<CheckPage> {
     }
   }
 
-  Widget _ticketCard(String title, {bool centerTitle = false, String? number}) {
+  // ✅ การ์ด (รองรับ onTap)
+  Widget _ticketCard(
+    String title, {
+    bool centerTitle = false,
+    String? number,
+    VoidCallback? onTap,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: centerTitle
@@ -65,24 +73,27 @@ class _CheckPageState extends State<CheckPage> {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          height: 78,
-          width: 160,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: const DecorationImage(
-              image: AssetImage('assets/images/Cupong.png'),
-              fit: BoxFit.cover,
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            height: 78,
+            width: 160,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/Cupong.png'),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: Center(
-            child: Text(
-              number ?? '',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                letterSpacing: 2,
+            child: Center(
+              child: Text(
+                number ?? '',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  letterSpacing: 2,
+                ),
               ),
             ),
           ),
@@ -91,6 +102,7 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
+  // ✅ ปุ่มสีเข้ม
   Widget _darkSmallButton(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
@@ -106,6 +118,74 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
+  // ✅ Popup แจ้งรางวัล
+  void _showPrizeDialog(String number, String prizeName, String amount) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFFFFF9E6),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "$prizeName !!!",
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/Cupong.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  number,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "ยินดีด้วย คุณถูกรางวัล\nเงินรางวัลมูลค่า $amount บาท",
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("ยกเลิก"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.brown,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              // TODO: ไปหน้า "ขึ้นเงิน"
+            },
+            child: const Text("ขึ้นเงิน"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ Bottom Navigation
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
@@ -154,8 +234,8 @@ class _CheckPageState extends State<CheckPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Expanded(
                       child: Text(
                         'Check',
@@ -169,6 +249,7 @@ class _CheckPageState extends State<CheckPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
+
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -198,29 +279,55 @@ class _CheckPageState extends State<CheckPage> {
                         ),
                         const SizedBox(height: 14),
 
-                        Center(child: _darkSmallButton('Check', () {})),
+                        // ปุ่ม Check
+                        Center(
+                          child: _darkSmallButton('Check', () {
+                            setState(() {
+                              showResult = true;
+                            });
+                          }),
+                        ),
                         const SizedBox(height: 18),
 
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'ยินดีด้วยคุณถูกรางวัล',
-                            style: TextStyle(
-                              fontSize: 16.5,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black.withOpacity(0.9),
+                        // แสดงการ์ดล่างเมื่อกด Check
+                        if (showResult) ...[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'ยินดีด้วยคุณถูกรางวัล',
+                              style: TextStyle(
+                                fontSize: 16.5,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black.withOpacity(0.9),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _ticketCard('My Prize', number: '444444'),
-                            _ticketCard('My Prize', number: '555555'),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _ticketCard(
+                                'My Prize',
+                                number: '999999',
+                                onTap: () => _showPrizeDialog(
+                                  '999999',
+                                  'Jackpot',
+                                  '6,000,000',
+                                ),
+                              ),
+                              _ticketCard(
+                                'My Prize',
+                                number: '555555',
+                                onTap: () => _showPrizeDialog(
+                                  '555555',
+                                  'Second Prize',
+                                  '200,000',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ],
                     ),
                   ),
@@ -270,24 +377,19 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
+  // ฟังก์ชันโหลดข้อมูล (ยังคงไว้)
   Future<void> mylotto() async {
     EasyLoading.show(status: 'loading...');
-
-    log(widget.idx.toString());
     try {
       final uri = Uri.parse("$url/lottery/${widget.idx}");
-
       final res = await http.get(
         uri,
         headers: {"Content-Type": "application/json; charset=utf-8"},
       );
-
       if (res.statusCode != 200) {
         throw Exception("HTTP ${res.statusCode}: ${res.body}");
       }
       var decoded = lottosGetResponseFromJson(res.body);
-      log(decoded.length.toString());
-
       if (!mounted) return;
       setState(() {
         lottos = decoded;
@@ -304,21 +406,16 @@ class _CheckPageState extends State<CheckPage> {
 
   Future<void> getrewards() async {
     EasyLoading.show(status: 'loading...');
-
-    log(widget.idx.toString());
     try {
-      final uri = Uri.parse("$url/lottery/rawards");
-
+      final uri = Uri.parse("$url/lottery/rewards");
       final res = await http.get(
         uri,
         headers: {"Content-Type": "application/json; charset=utf-8"},
       );
-
       if (res.statusCode != 200) {
         throw Exception("HTTP ${res.statusCode}: ${res.body}");
       }
       var decoded = rewardGetResponseFromJson(res.body);
-
       if (!mounted) return;
       setState(() {
         rewards = decoded;
