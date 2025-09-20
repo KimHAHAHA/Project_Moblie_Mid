@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
@@ -21,32 +20,9 @@ class CheckPage extends StatefulWidget {
 
 class _CheckPageState extends State<CheckPage> {
   int _selectedIndex = 3;
-  List<LottosGetResponse> lottos = [];
-  List<RewardGetResponse> rewards = [];
 
-  String url = "";
-  String errorText = "";
-  bool loading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    try {
-      final config = await Configuration.getConfig();
-      url = (config["apiEndpoint"] as String).trim();
-      await mylotto();
-    } catch (e, st) {
-      log("init error: $e\n$st");
-      if (!mounted) return;
-      setState(() => errorText = e.toString());
-    }
-  }
-
-  Widget _ticketCard(String title, {bool centerTitle = false}) {
+  // ฟังก์ชันการ์ด ใช้ได้ทั้งมี/ไม่มีเลข
+  Widget _ticketCard(String title, {bool centerTitle = false, String? number}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: centerTitle
@@ -75,22 +51,19 @@ class _CheckPageState extends State<CheckPage> {
               fit: BoxFit.cover,
             ),
           ),
+          child: Center(
+            child: Text(
+              number ?? '',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: 2,
+              ),
+            ),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _plainTicketBox() {
-    return Container(
-      height: 78,
-      width: 160,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: const DecorationImage(
-          image: AssetImage('assets/images/Cupong.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
     );
   }
 
@@ -158,8 +131,8 @@ class _CheckPageState extends State<CheckPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: [
-                    const Expanded(
+                  children: const [
+                    Expanded(
                       child: Text(
                         'Check',
                         style: TextStyle(
@@ -176,25 +149,32 @@ class _CheckPageState extends State<CheckPage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        // Jackpot
                         Center(
-                          child: _ticketCard('Jackpot', centerTitle: true),
+                          child: _ticketCard(
+                            'Jackpot',
+                            centerTitle: true,
+                            number: '000000',
+                          ),
                         ),
                         const SizedBox(height: 16),
 
+                        // Second / Third
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _ticketCard('Second Prize'),
-                            _ticketCard('Third Prize'),
+                            _ticketCard('Second Prize', number: '111111'),
+                            _ticketCard('Third Prize', number: '222222'),
                           ],
                         ),
                         const SizedBox(height: 16),
 
+                        // Last 3 / Last 2
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _ticketCard('Last 3 Numbers'),
-                            _ticketCard('Last 2 Numbers'),
+                            _ticketCard('Last 3 Numbers', number: '333333'),
+                            _ticketCard('Last 2 Numbers', number: '555555'),
                           ],
                         ),
                         const SizedBox(height: 14),
@@ -214,9 +194,14 @@ class _CheckPageState extends State<CheckPage> {
                           ),
                         ),
                         const SizedBox(height: 10),
+
+                        // ตัวอย่างการ์ดถูกรางวัล
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [_plainTicketBox(), _plainTicketBox()],
+                          children: [
+                            _ticketCard('My Prize', number: '444444'),
+                            _ticketCard('My Prize', number: '555555'),
+                          ],
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -266,68 +251,5 @@ class _CheckPageState extends State<CheckPage> {
         ),
       ),
     );
-  }
-
-  Future<void> mylotto() async {
-    EasyLoading.show(status: 'loading...');
-
-    log(widget.idx.toString());
-    try {
-      final uri = Uri.parse("$url/lottery/${widget.idx}");
-
-      final res = await http.get(
-        uri,
-        headers: {"Content-Type": "application/json; charset=utf-8"},
-      );
-
-      if (res.statusCode != 200) {
-        throw Exception("HTTP ${res.statusCode}: ${res.body}");
-      }
-      var decoded = lottosGetResponseFromJson(res.body);
-      log(decoded.length.toString());
-
-      if (!mounted) return;
-      setState(() {
-        lottos = decoded;
-      });
-    } catch (e, st) {
-      log("lotto error: $e\n$st");
-      if (!mounted) return;
-      setState(() => errorText = e.toString());
-    } finally {
-      EasyLoading.dismiss();
-      if (mounted) setState(() => loading = false);
-    }
-  }
-
-  Future<void> getrewards() async {
-    EasyLoading.show(status: 'loading...');
-
-    log(widget.idx.toString());
-    try {
-      final uri = Uri.parse("$url/lottery/rawards");
-
-      final res = await http.get(
-        uri,
-        headers: {"Content-Type": "application/json; charset=utf-8"},
-      );
-
-      if (res.statusCode != 200) {
-        throw Exception("HTTP ${res.statusCode}: ${res.body}");
-      }
-      var decoded = rewardGetResponseFromJson(res.body);
-
-      if (!mounted) return;
-      setState(() {
-        rewards = decoded;
-      });
-    } catch (e, st) {
-      log("reward error: $e\n$st");
-      if (!mounted) return;
-      setState(() => errorText = e.toString());
-    } finally {
-      EasyLoading.dismiss();
-      if (mounted) setState(() => loading = false);
-    }
   }
 }
