@@ -1,4 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/lotto_get_res.dart';
+import 'package:my_app/model/response/rewards_get_res.dart';
 import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
 import 'package:my_app/pages/User/profile.dart';
@@ -14,6 +21,31 @@ class CheckPage extends StatefulWidget {
 
 class _CheckPageState extends State<CheckPage> {
   int _selectedIndex = 3;
+  List<LottosGetResponse> lottos = [];
+  List<RewardGetResponse> rewards = [];
+
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await mylotto();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
   Widget _ticketCard(String title, {bool centerTitle = false}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -77,31 +109,30 @@ class _CheckPageState extends State<CheckPage> {
     );
   }
 
-  // ====== Nav handler (เรียกหน้าโดยตรง) ======
   void _onNavTapped(int i) {
     setState(() => _selectedIndex = i);
     switch (i) {
-      case 0: // Home
+      case 0:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
         );
         break;
-      case 1: // Lottery
+      case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => MyLotteryPage(idx: widget.idx)),
         );
         break;
-      case 2: // Wallet
+      case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => MyWalletPage(idx: widget.idx)),
         );
         break;
-      case 3: // Check (อยู่หน้านี้แล้ว)
+      case 3:
         break;
-      case 4: // Profile
+      case 4:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => ProfilePage(idx: widget.idx)),
@@ -126,7 +157,6 @@ class _CheckPageState extends State<CheckPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ====== Title + Back (ขวา) ======
                 Row(
                   children: [
                     const Expanded(
@@ -142,19 +172,15 @@ class _CheckPageState extends State<CheckPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // ====== เนื้อหาสครอลได้ ======
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Jackpot กลาง
                         Center(
                           child: _ticketCard('Jackpot', centerTitle: true),
                         ),
                         const SizedBox(height: 16),
 
-                        // Second / Third
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -164,7 +190,6 @@ class _CheckPageState extends State<CheckPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Last 3 / Last 2
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -174,15 +199,9 @@ class _CheckPageState extends State<CheckPage> {
                         ),
                         const SizedBox(height: 14),
 
-                        // ปุ่ม Check กลาง (เล็ก สีเข้ม)
-                        Center(
-                          child: _darkSmallButton('Check', () {
-                            // TODO: ใส่ลอจิกตรวจรางวัล
-                          }),
-                        ),
+                        Center(child: _darkSmallButton('Check', () {})),
                         const SizedBox(height: 18),
 
-                        // ส่วนยินดีด้วย...
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -209,8 +228,6 @@ class _CheckPageState extends State<CheckPage> {
           ),
         ),
       ),
-
-      // ====== Bottom Nav 5 เมนู ======
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -249,5 +266,68 @@ class _CheckPageState extends State<CheckPage> {
         ),
       ),
     );
+  }
+
+  Future<void> mylotto() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery/${widget.idx}");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      var decoded = lottosGetResponseFromJson(res.body);
+      log(decoded.length.toString());
+
+      if (!mounted) return;
+      setState(() {
+        lottos = decoded;
+      });
+    } catch (e, st) {
+      log("lotto error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> getrewards() async {
+    EasyLoading.show(status: 'loading...');
+
+    log(widget.idx.toString());
+    try {
+      final uri = Uri.parse("$url/lottery/rawards");
+
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+      var decoded = rewardGetResponseFromJson(res.body);
+
+      if (!mounted) return;
+      setState(() {
+        rewards = decoded;
+      });
+    } catch (e, st) {
+      log("reward error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
   }
 }
