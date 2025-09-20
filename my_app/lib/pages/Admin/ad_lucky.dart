@@ -1,5 +1,11 @@
-import 'dart:math';
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:math' hide log;
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
+import 'package:my_app/model/response/lotto_get_res.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 
@@ -12,71 +18,53 @@ class ADLuckyPage extends StatefulWidget {
 }
 
 class _HomePageState extends State<ADLuckyPage> {
-  // ช่องกรอก PIN 6 หลัก
+  List<LottosGetResponse> lottoall = [];
+  List<LottosGetResponse> lottosold = [];
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+  int _selectedIndex = 1;
+
   final List<TextEditingController> _controllers = List.generate(
     6,
     (_) => TextEditingController(),
   );
 
-  int _selectedIndex = 1;
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
 
-  // ===== เมนูเลือกประเภทการสุ่ม (ตัด "ยังไม่ถูกซื้อ" ออก) =====
-  String _drawType = 'all'; // ค่าเริ่มต้น
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+      await _fetchLottoData();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
+
+  String _drawType = 'all';
   final Map<String, String> _drawTypeItems = const {
-    'bought': 'Lottery ที่ถูกซื้อแล้ว',
+    'sold': 'Lottery ที่ถูกซื้อแล้ว',
     'all': 'Lottery ทั้งหมด',
   };
 
-  // ===== เลขบนการ์ด 5 ใบ + ตัวชี้ใบถัดไป =====
   final List<String?> _cardNumbers = List<String?>.filled(5, null);
-  int _nextCardIndex = 0; // 0..4
+  int _nextCardIndex = 0;
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  // สุ่ม PIN 6 หลักลงช่องอินพุต
-  void _randomFill() {
-    final r = Random();
-    for (int i = 0; i < 6; i++) {
-      _controllers[i].text = r.nextInt(10).toString();
-    }
-    setState(() {});
-  }
-
-  // รวมค่าจาก 6 ช่องเป็นสตริง 6 หลัก (ช่องว่างแทนด้วย 0)
-  String _composePin() {
-    final b = StringBuffer();
-    for (final c in _controllers) {
-      final t = (c.text.trim().isEmpty) ? '0' : c.text.trim();
-      b.write(t[0]);
-    }
-    return b.toString();
-  }
-
-  // กด Random:
-  // 1) สุ่มเลขใหม่ทุกครั้ง
-  // 2) รวมเป็นเลข 6 หลัก
-  // 3) เติมลง "การ์ดใบถัดไป" ทีละใบจนถึงใบที่ 5
-  void _randomToCard() {
-    _randomFill(); // ✅ สุ่มเลขใหม่เสมอ
-    final number = _composePin();
-
-    if (_nextCardIndex < 5) {
-      setState(() {
-        _cardNumbers[_nextCardIndex] = number;
-        _nextCardIndex++;
-      });
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('การ์ดครบ 5 ใบแล้ว')));
-    }
-  }
-
-  // ===== PIN box =====
   Widget _pinContainer() {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -112,7 +100,6 @@ class _HomePageState extends State<ADLuckyPage> {
     );
   }
 
-  // ปุ่มเข้ม
   Widget _darkButton(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
@@ -141,7 +128,7 @@ class _HomePageState extends State<ADLuckyPage> {
           children: [
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: _drawType,
+                initialValue: _drawType,
                 items: _drawTypeItems.entries
                     .map(
                       (e) =>
@@ -178,7 +165,6 @@ class _HomePageState extends State<ADLuckyPage> {
     );
   }
 
-  // การ์ดรางวัล
   Widget _ticketCard(
     String title, {
     String? number,
@@ -234,7 +220,6 @@ class _HomePageState extends State<ADLuckyPage> {
     );
   }
 
-  // Bottom nav
   void _onNavTapped(int i) {
     if (i == _selectedIndex) return;
     setState(() => _selectedIndex = i);
@@ -276,7 +261,6 @@ class _HomePageState extends State<ADLuckyPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // หัวข้อ + back
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -391,5 +375,107 @@ class _HomePageState extends State<ADLuckyPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchLottoData() async {
+    EasyLoading.show(status: 'loading...');
+    try {
+      final uri = Uri.parse("$url/lottery");
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+
+      var decoded = lottosGetResponseFromJson(res.body);
+
+      if (!mounted) return;
+      setState(() {
+        lottoall = decoded;
+        lottosold = decoded
+            .where((item) => item.lottoStatus == "sold")
+            .toList();
+      });
+    } catch (e, st) {
+      log("lottos error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) {
+        EasyLoading.dismiss();
+        setState(() => loading = false);
+      }
+    }
+  }
+
+  LottosGetResponse RandomLotto() {
+    var random = Random();
+
+    if (_drawType == "all" && lottoall.isNotEmpty) {
+      int index = random.nextInt(lottoall.length);
+      return lottoall[index];
+    } else if (_drawType == "sold" && lottosold.isNotEmpty) {
+      int index = random.nextInt(lottosold.length);
+      return lottosold[index];
+    }
+
+    throw Exception("ไม่พบล็อตเตอรี่สำหรับการสุ่ม");
+  }
+
+  void setLottoNumberToControllers(LottosGetResponse lotto) {
+    final number = lotto.lottoNumber.padLeft(6, '0');
+    for (int i = 0; i < 6; i++) {
+      _controllers[i].text = number[i];
+    }
+    setState(() {});
+  }
+
+  void _randomToCard() {
+    var randomLotto = RandomLotto();
+    setLottoNumberToControllers(randomLotto);
+
+    if (_nextCardIndex < 5) {
+      setState(() {
+        if (_nextCardIndex == 0) {
+          _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
+          _cardNumbers[3] = randomLotto.lottoNumber;
+          Reward(randomLotto.lid, _nextCardIndex + 1);
+          Reward(randomLotto.lid, _nextCardIndex + 4);
+        } else if (_nextCardIndex != 3) {
+          _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
+          Reward(randomLotto.lid, _nextCardIndex + 1);
+        }
+        _nextCardIndex++;
+
+        if (_nextCardIndex == 3) {
+          _nextCardIndex++;
+        }
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('การ์ดครบ 5 ใบแล้ว')));
+    }
+  }
+
+  Future<void> Reward(int lid, int rank) async {
+    try {
+      var body = jsonEncode({"lid": lid, "reward_rank": rank});
+
+      await http.post(
+        Uri.parse("$url/lottery/rewards"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: body,
+      );
+    } catch (e) {
+      log("Reward error: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('ส่งข้อมูลไม่สำเร็จ')));
+    }
   }
 }
