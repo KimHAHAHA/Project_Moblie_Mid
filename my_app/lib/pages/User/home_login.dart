@@ -38,6 +38,7 @@ class _HomePageState extends State<Home_LoginPage> {
   @override
   void initState() {
     super.initState();
+    log("initState เรียกแล้ว");
     _init();
   }
 
