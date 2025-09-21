@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:my_app/config/config.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
 import 'package:my_app/pages/Admin/ad_profile.dart';
@@ -14,6 +19,27 @@ class ADAdminPage extends StatefulWidget {
 
 class _ADAdminPageState extends State<ADAdminPage> {
   int _navIndex = 2;
+
+  String url = "";
+  String errorText = "";
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final config = await Configuration.getConfig();
+      url = (config["apiEndpoint"] as String).trim();
+    } catch (e, st) {
+      log("init error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    }
+  }
 
   void _onNavTap(int i) {
     if (i == _navIndex) return;
@@ -168,7 +194,15 @@ class _ADAdminPageState extends State<ADAdminPage> {
                     width: 130,
                     height: 44,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        cleardata();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Home_LoginPage(idx: 0),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
@@ -220,5 +254,20 @@ class _ADAdminPageState extends State<ADAdminPage> {
         ),
       ),
     );
+  }
+
+  Future<void> cleardata() async {
+    final uri = Uri.parse("$url/lottery/reset-keep-admin");
+    final response = await http.delete(
+      uri,
+      headers: {"Content-Type": "application/json; charset=utf-8"},
+    );
+    final Map<String, dynamic> res = jsonDecode(response.body);
+
+    if (res['message'] != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(res['message'])));
+    }
   }
 }
