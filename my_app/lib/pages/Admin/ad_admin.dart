@@ -189,19 +189,89 @@ class _ADAdminPageState extends State<ADAdminPage> {
                   },
                 ),
                 const Spacer(flex: 20),
+
+                // ปุ่ม Clear Data + Popup 2 ชั้น
                 Center(
                   child: SizedBox(
                     width: 130,
                     height: 44,
                     child: ElevatedButton(
-                      onPressed: () {
-                        cleardata();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => Home_LoginPage(idx: 0),
-                          ),
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) {
+                            return AlertDialog(
+                              backgroundColor: const Color(0xFFFFFAE6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              title: const Text(
+                                "คุณต้องการ Clear Data หรือไม่",
+                                textAlign: TextAlign.center,
+                              ),
+                              actionsAlignment: MainAxisAlignment.center,
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.brown.shade300,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text("ยกเลิก"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.brown.shade800,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text("ตกลง"),
+                                ),
+                              ],
+                            );
+                          },
                         );
+
+                        if (confirm == true) {
+                          await cleardata();
+
+                          await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (ctx) {
+                              return AlertDialog(
+                                backgroundColor: const Color(0xFFFFFAE6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                title: const Text(
+                                  "คุณได้ Clear Data เรียบร้อยแล้ว",
+                                  textAlign: TextAlign.center,
+                                ),
+                                actionsAlignment: MainAxisAlignment.center,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.brown.shade500,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text("ตกลง"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => Home_LoginPage(idx: 0),
+                            ),
+                            (route) => false,
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -214,7 +284,7 @@ class _ADAdminPageState extends State<ADAdminPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      child: const Text('Clear Data'),
+                      child: const Text("Clear Data"),
                     ),
                   ),
                 ),

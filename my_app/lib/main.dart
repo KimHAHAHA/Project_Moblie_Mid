@@ -23,5 +23,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//User name: user01    pw: pass01
 //Admin name: 11       pm: 11

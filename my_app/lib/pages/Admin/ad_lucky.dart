@@ -290,11 +290,9 @@ class _HomePageState extends State<ADLuckyPage> {
                 _pinContainer(),
                 const SizedBox(height: 12),
 
-                // เมนูเลือกประเภท + ปุ่ม Random
                 _filterRow(),
                 const SizedBox(height: 16),
 
-                // การ์ดรางวัล
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -336,8 +334,6 @@ class _HomePageState extends State<ADLuckyPage> {
                     ),
                   ),
                 ),
-
-                Center(child: _darkButton('Confirm', () {})),
               ],
             ),
           ),

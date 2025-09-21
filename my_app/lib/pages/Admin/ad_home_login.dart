@@ -50,66 +50,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
 
   int _selectedIndex = 0;
 
-  void _fillFromRandomLotto() {
-    if (allLottos.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('ไม่มีข้อมูลสลากให้สุ่ม')));
-      return;
-    }
-
-    final rnd = math.Random();
-    // ✅ สุ่มเลือก 1 ใบจากรายการทั้งหมด
-    final randomLotto = allLottos[rnd.nextInt(allLottos.length)];
-
-    // ✅ กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
-    final number = randomLotto.lottoNumber.padLeft(
-      6,
-      '0',
-    ); // กันกรณีเลขไม่ครบ 6 หลัก
-    for (var i = 0; i < _controllers.length; i++) {
-      _controllers[i].text = number[i];
-    }
-  }
-
-  void _resetPins() {
-    // เคลียร์ตัวเลขในทุกช่อง
-    for (final c in _controllers) {
-      c.clear();
-    }
-
-    // แสดงรายการลอตเตอรี่ทั้งหมดกลับมา
-    setState(() {
-      lottos = List.from(allLottos);
-    });
-
-    // เอาโฟกัสออกจาก text field
-    FocusScope.of(context).unfocus();
-  }
-
-  void _searchLottoByNumber() {
-    final number = _controllers.map((c) => c.text).join();
-
-    if (number.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("กรุณากรอกเลขให้ครบ 6 หลัก")),
-      );
-      return;
-    }
-
-    final results = allLottos.where((l) => l.lottoNumber == number).toList();
-
-    if (results.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("ไม่พบหมายเลข $number")));
-    }
-
-    setState(() {
-      lottos = results;
-    });
-  }
-
   @override
   void dispose() {
     for (final c in _controllers) {
@@ -271,13 +211,7 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _darkButton('Random', _fillFromRandomLotto),
-                    const SizedBox(width: 12),
-                    _darkButton('Confirm', _searchLottoByNumber),
-                    const SizedBox(width: 12),
-                    _darkButton('Reset', _resetPins),
-                  ],
+                  children: [_darkButton('Random Lottery', () {})],
                 ),
                 const SizedBox(height: 16),
                 Expanded(

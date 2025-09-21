@@ -91,16 +91,23 @@ class _CheckPageState extends State<CheckPage> {
                 fit: BoxFit.cover,
               ),
             ),
-            child: Center(
-              child: Text(
-                number ?? '',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  letterSpacing: 2,
-                ),
-              ),
+            child: Stack(
+              children: [
+                if (number != null && number.isNotEmpty)
+                  Positioned(
+                    top: 28,
+                    left: 58,
+                    child: Text(
+                      number,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -137,16 +144,23 @@ class _CheckPageState extends State<CheckPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Center(
-                child: Text(
-                  number,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    letterSpacing: 2,
-                  ),
-                ),
+              child: Stack(
+                children: [
+                  if (number.isNotEmpty)
+                    Positioned(
+                      top: 43,
+                      left: 85,
+                      child: Text(
+                        number,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

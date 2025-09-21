@@ -335,7 +335,6 @@ class _MyLotteryPageState extends State<MyLotteryPage> {
         ),
       ),
 
-      // ===== Bottom Navigation =====
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(

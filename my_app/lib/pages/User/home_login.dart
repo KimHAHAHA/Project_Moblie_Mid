@@ -64,10 +64,10 @@ class _HomePageState extends State<Home_LoginPage> {
     }
 
     final rnd = math.Random();
-    // ✅ สุ่มเลือก 1 ใบจากรายการทั้งหมด
+    // สุ่มเลือก 1 ใบจากรายการทั้งหมด
     final randomLotto = allLottos[rnd.nextInt(allLottos.length)];
 
-    // ✅ กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
+    // กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
     final number = randomLotto.lottoNumber.padLeft(
       6,
       '0',
@@ -201,7 +201,7 @@ class _HomePageState extends State<Home_LoginPage> {
                         builder: (_) => Home_LoginPage(idx: widget.idx),
                       ),
                     );
-                    _onBuy(widget.idx, lotto.lid); // ✅ เรียก API ซื้อ
+                    _onBuy(widget.idx, lotto.lid);
                   },
                   child: const Text('ตกลง'),
                 ),
@@ -328,7 +328,7 @@ class _HomePageState extends State<Home_LoginPage> {
                     const SizedBox(width: 12),
                     _darkButton('Confirm', _searchLottoByNumber),
                     const SizedBox(width: 12),
-                    _darkButton('Reset', _resetPins),
+                    _darkButton('All', _resetPins),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -422,8 +422,8 @@ class _HomePageState extends State<Home_LoginPage> {
 
       if (!mounted) return;
       setState(() {
-        allLottos = decoded; // ✅ เก็บต้นฉบับ
-        lottos = decoded; // ✅ แสดงเริ่มต้นทั้งหมด
+        allLottos = decoded; //เก็บต้นฉบับ
+        lottos = decoded; //แสดงเริ่มต้นทั้งหมด
       });
     } catch (e, st) {
       log("lottos error: $e\n$st");
