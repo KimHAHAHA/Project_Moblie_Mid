@@ -24,6 +24,7 @@ class _HomePageState extends State<ADLuckyPage> {
   String errorText = "";
   bool loading = false;
   int _selectedIndex = 1;
+  final Set<int> _usedLids = {};
 
   final List<TextEditingController> _controllers = List.generate(
     6,
@@ -63,6 +64,31 @@ class _HomePageState extends State<ADLuckyPage> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  void _onNavTapped(int i) {
+    if (i == _selectedIndex) return;
+    setState(() => _selectedIndex = i);
+    switch (i) {
+      case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
+        );
+        break;
+    }
   }
 
   Widget _pinContainer() {
@@ -220,31 +246,6 @@ class _HomePageState extends State<ADLuckyPage> {
     );
   }
 
-  void _onNavTapped(int i) {
-    if (i == _selectedIndex) return;
-    setState(() => _selectedIndex = i);
-    switch (i) {
-      case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ADHome_LoginPage(idx: widget.idx)),
-        );
-        break;
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ADLuckyPage(idx: widget.idx)),
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ADAdminPage(idx: widget.idx)),
-        );
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -321,11 +322,11 @@ class _HomePageState extends State<ADLuckyPage> {
                           children: [
                             _ticketCard(
                               'Last 3 Numbers',
-                              number: _cardNumbers[3],
+                              number: _tail(_cardNumbers[3], 3),
                             ),
                             _ticketCard(
                               'Last 2 Numbers',
-                              number: _cardNumbers[4],
+                              number: _tail(_cardNumbers[4], 2),
                             ),
                           ],
                         ),
@@ -340,7 +341,6 @@ class _HomePageState extends State<ADLuckyPage> {
         ),
       ),
 
-      // Bottom Navigation
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: ClipRRect(
@@ -407,18 +407,21 @@ class _HomePageState extends State<ADLuckyPage> {
     }
   }
 
-  LottosGetResponse RandomLotto() {
-    var random = Random();
+  LottosGetResponse RandomLottoUnique() {
+    final random = Random();
 
-    if (_drawType == "all" && lottoall.isNotEmpty) {
-      int index = random.nextInt(lottoall.length);
-      return lottoall[index];
-    } else if (_drawType == "sold" && lottosold.isNotEmpty) {
-      int index = random.nextInt(lottosold.length);
-      return lottosold[index];
+    final source = _drawType == "all" ? lottoall : lottosold;
+    final available = source.where((e) => !_usedLids.contains(e.lid)).toList();
+
+    if (available.isEmpty) {
+      throw Exception("ไม่พบล็อตเตอรี่สำหรับการสุ่ม (เหลือแต่ตัวที่ใช้ไปแล้ว)");
     }
 
-    throw Exception("ไม่พบล็อตเตอรี่สำหรับการสุ่ม");
+    final index = random.nextInt(available.length);
+    final picked = available[index];
+
+    _usedLids.add(picked.lid);
+    return picked;
   }
 
   void setLottoNumberToControllers(LottosGetResponse lotto) {
@@ -430,30 +433,39 @@ class _HomePageState extends State<ADLuckyPage> {
   }
 
   void _randomToCard() {
-    var randomLotto = RandomLotto();
-    setLottoNumberToControllers(randomLotto);
+    try {
+      final randomLotto = RandomLottoUnique();
 
-    if (_nextCardIndex < 5) {
-      setState(() {
-        if (_nextCardIndex == 0) {
-          _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
-          _cardNumbers[3] = randomLotto.lottoNumber;
-          Reward(randomLotto.lid, _nextCardIndex + 1);
-          Reward(randomLotto.lid, _nextCardIndex + 4);
-        } else if (_nextCardIndex != 3) {
-          _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
-          Reward(randomLotto.lid, _nextCardIndex + 1);
-        }
-        _nextCardIndex++;
+      setLottoNumberToControllers(randomLotto);
 
-        if (_nextCardIndex == 3) {
+      if (_nextCardIndex < 5) {
+        setState(() {
+          if (_nextCardIndex == 0) {
+            _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
+            _cardNumbers[3] = randomLotto.lottoNumber;
+
+            Reward(randomLotto.lid, _nextCardIndex + 1);
+            Reward(randomLotto.lid, _nextCardIndex + 4);
+          } else if (_nextCardIndex != 3) {
+            _cardNumbers[_nextCardIndex] = randomLotto.lottoNumber;
+            Reward(randomLotto.lid, _nextCardIndex + 1);
+          }
+
           _nextCardIndex++;
-        }
-      });
-    } else {
+
+          if (_nextCardIndex == 3) {
+            _nextCardIndex++;
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('การ์ดครบ 5 ใบแล้ว')));
+      }
+    } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('การ์ดครบ 5 ใบแล้ว')));
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -473,5 +485,11 @@ class _HomePageState extends State<ADLuckyPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('ส่งข้อมูลไม่สำเร็จ')));
     }
+  }
+
+  String? _tail(String? num, int n) {
+    if (num == null) return null;
+    final s = num.padLeft(6, '0'); // เผื่อกรณีมี 0 นำหน้า
+    return s.substring(s.length - n);
   }
 }

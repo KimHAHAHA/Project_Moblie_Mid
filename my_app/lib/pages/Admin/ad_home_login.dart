@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:my_app/config/config.dart';
 import 'package:my_app/model/response/lotto_get_res.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_lucky.dart';
-import 'dart:math' as math;
 
 class ADHome_LoginPage extends StatefulWidget {
   final int idx;
@@ -124,7 +124,6 @@ class _HomePageState extends State<ADHome_LoginPage> {
     );
   }
 
-  // ===== การ์ดคูปองพร้อมตัวเลขด้านบน =====
   Widget _ticketCard(LottosGetResponse lotto) {
     return InkWell(
       onTap: () {
@@ -211,7 +210,21 @@ class _HomePageState extends State<ADHome_LoginPage> {
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [_darkButton('Random Lottery', () {})],
+                  children: [
+                    _darkButton('Random Lottery', () async {
+                      final hasLottery = lottos.isNotEmpty;
+
+                      if (hasLottery) {
+                        await _showInfoDialog(
+                          'เพิ่ม Lottery แล้ว',
+                          'คุณได้เพิ่ม Lottery ในระบบแล้ว ไม่สามารถสุ่มซ้ำได้',
+                        );
+                        return;
+                      }
+
+                      await _addLotto();
+                    }),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Expanded(
@@ -294,5 +307,53 @@ class _HomePageState extends State<ADHome_LoginPage> {
         setState(() => loading = false);
       }
     }
+  }
+
+  Future<void> _addLotto() async {
+    EasyLoading.show(status: 'loading...');
+    try {
+      final uri = Uri.parse("$url/lottery/setlottos");
+      final response = await http.post(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+      final Map<String, dynamic> res = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      if (res['message'] != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res['message'])));
+      }
+
+      _fetchLottoData();
+    } catch (e, st) {
+      log("lottos error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      if (mounted) {
+        EasyLoading.dismiss();
+        setState(() => loading = false);
+      }
+    }
+  }
+
+  Future<void> _showInfoDialog(String title, String message) async {
+    if (!mounted) return;
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('ตกลง'),
+          ),
+        ],
+      ),
+    );
   }
 }

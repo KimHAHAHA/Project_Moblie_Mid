@@ -190,7 +190,6 @@ class _ADAdminPageState extends State<ADAdminPage> {
                 ),
                 const Spacer(flex: 20),
 
-                // ปุ่ม Clear Data + Popup 2 ชั้น
                 Center(
                   child: SizedBox(
                     width: 130,
@@ -252,7 +251,15 @@ class _ADAdminPageState extends State<ADAdminPage> {
                                 actionsAlignment: MainAxisAlignment.center,
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    onPressed: () => {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ADHome_LoginPage(idx: widget.idx),
+                                        ),
+                                      ),
+                                    },
                                     style: TextButton.styleFrom(
                                       backgroundColor: Colors.brown.shade500,
                                       foregroundColor: Colors.white,

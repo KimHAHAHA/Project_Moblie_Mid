@@ -22,5 +22,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-//Admin name: 11       pm: 11
