@@ -43,4 +43,9 @@ class LottosGetResponse {
     "price": price,
     "uid": uid,
   };
+
+  @override
+  String toString() {
+    return 'LottosGetResponse(lid: $lid, status: $lottoStatus, number: $lottoNumber, price: $price, uid: $uid)';
+  }
 }

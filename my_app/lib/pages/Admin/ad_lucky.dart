@@ -385,7 +385,7 @@ class _HomePageState extends State<ADLuckyPage> {
   Future<void> _fetchLottoData() async {
     EasyLoading.show(status: 'loading...');
     try {
-      final uri = Uri.parse("$url/lottery");
+      final uri = Uri.parse("$url/lottery/all");
       final res = await http.get(
         uri,
         headers: {"Content-Type": "application/json; charset=utf-8"},
@@ -397,12 +397,18 @@ class _HomePageState extends State<ADLuckyPage> {
 
       var decoded = lottosGetResponseFromJson(res.body);
 
+      for (final l in decoded.take(10)) {
+        log(l.toString());
+      }
+
       if (!mounted) return;
       setState(() {
         lottoall = decoded;
         lottosold = decoded
             .where((item) => item.lottoStatus == "sold")
             .toList();
+        log("All : $lottoall");
+        log("Sold : $lottosold");
       });
     } catch (e, st) {
       log("lottos error: $e\n$st");

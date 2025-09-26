@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/response/lotto_get_res.dart';
 import 'package:my_app/model/response/rewards_get_res.dart';
+import 'package:my_app/model/response/rewardtail_get_res.dart';
 import 'package:my_app/pages/User/mylottery.dart';
 import 'package:my_app/pages/User/mywallet.dart';
 import 'package:my_app/pages/User/profile.dart';
@@ -23,6 +24,7 @@ class _CheckPageState extends State<CheckPage> {
   int _selectedIndex = 3;
   List<LottosGetResponse> lottos = [];
   List<RewardGetResponse> rewards = [];
+  List<RewardTailGetResponse> tailClaims = [];
   RewardGetResponse? rewardJackpot;
   RewardGetResponse? rewardSecond;
   RewardGetResponse? rewardThird;
@@ -117,6 +119,7 @@ class _CheckPageState extends State<CheckPage> {
 
   void _showPrizeDialog(
     int rid,
+    int lid,
     String number,
     String prizeName,
     String amount,
@@ -183,7 +186,7 @@ class _CheckPageState extends State<CheckPage> {
               foregroundColor: Colors.white,
             ),
             onPressed: () async {
-              await getmoney(rid);
+              await getmoney(rid, lid);
               if (!mounted) return;
               Navigator.pop(context);
               await getrewards();
@@ -326,6 +329,7 @@ class _CheckPageState extends State<CheckPage> {
                                 number: displayNumber,
                                 onTap: () => _showPrizeDialog(
                                   rw.rid,
+                                  rw.lid,
                                   displayNumber,
                                   _prizeName(rw.rewardRank),
                                   rw.prizeAmount,
@@ -439,10 +443,21 @@ class _CheckPageState extends State<CheckPage> {
       if (res.statusCode != 200) {
         throw Exception("HTTP ${res.statusCode}: ${res.body}");
       }
+
+      final uritail = Uri.parse("$url/lottery/rawards/tail");
+      final restail = await http.get(
+        uritail,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+      if (restail.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
       var decoded = rewardGetResponseFromJson(res.body);
+      var decodedtail = rewardTailGetResponseFromJson(restail.body);
 
       setState(() {
         rewards = decoded;
+        tailClaims = decodedtail;
 
         final byRank = <int, RewardGetResponse>{};
         for (final r in decoded) {
@@ -466,33 +481,84 @@ class _CheckPageState extends State<CheckPage> {
     }
   }
 
-  String? _lastNDigits(String? s, int n) {
-    if (s == null) return null;
-    final t = s.trim();
-    if (t.isEmpty) return null;
-
-    if (t.length <= n) return t;
-    return t.substring(t.length - n);
-  }
-
   void _recomputeWins() {
-    final myLids = lottos.map((e) => e.lid).toSet();
+    // index ลอตเตอรี่ของฉันไว้ดูซ้ำเร็ว ๆ
+    final myByLid = {for (final l in lottos) l.lid: l};
 
+    // 1) เริ่มจากรางวัลที่ backend สร้างไว้แล้ว (ยังไม่ขึ้นเงิน)
     final wins = rewards
-        .where((r) => myLids.contains(r.lid) && (r.claimStatus == 0))
+        .where((r) => myByLid.containsKey(r.lid) && r.claimStatus == 0)
         .toList();
 
+    // 2) เช็คเลขท้าย 3 ตัว
+    final winLast3 = _lastNDigits(rewardLast3?.lottoNumber, 3);
+    if (winLast3 != null && winLast3.isNotEmpty) {
+      for (final l in lottos) {
+        final suffix = _lastNDigits(l.lottoNumber, 3);
+        final already = wins.any((w) => w.lid == l.lid && w.rewardRank == 4);
+        if (!already && suffix == winLast3) {
+          wins.add(
+            RewardGetResponse(
+              rid: rewardLast3!.rid, // ✅ ใช้ rid จริงจาก reward
+              lid: l.lid,
+              uid: l.uid,
+              rewardRank: 4,
+              prizeAmount: rewardLast3?.prizeAmount ?? "0",
+              claimStatus: 0,
+              lottoNumber: l.lottoNumber,
+            ),
+          );
+        }
+      }
+    }
+
+    // 3) เช็คเลขท้าย 2 ตัว
+    final winLast2 = _lastNDigits(rewardLast2?.lottoNumber, 2);
+    if (winLast2 != null && winLast2.isNotEmpty) {
+      for (final l in lottos) {
+        final suffix = _lastNDigits(l.lottoNumber, 2);
+        final already = wins.any((w) => w.lid == l.lid && w.rewardRank == 5);
+        if (!already && suffix == winLast2) {
+          wins.add(
+            RewardGetResponse(
+              rid: rewardLast2!.rid, // ✅ ใช้ rid จริงจาก reward
+              lid: l.lid,
+              uid: l.uid,
+              rewardRank: 5,
+              prizeAmount: rewardLast2?.prizeAmount ?? "0",
+              claimStatus: 0,
+              lottoNumber: l.lottoNumber,
+            ),
+          );
+        }
+      }
+    }
+
+    if (!mounted) return;
     setState(() {
       myWinningRewards = wins;
     });
   }
 
-  Future<void> getmoney(int rid) async {
-    log(rid.toString());
-    final uri = Uri.parse("$url/lottery/rawards/claim/$rid");
+  // ช่วยตัดให้เหลือแต่เลข และดึงเลขท้าย n หลักให้เสมอ
+  String? _lastNDigits(String? s, int n) {
+    if (s == null) return null;
+    final onlyDigits = s.replaceAll(RegExp(r'[^0-9]'), '').trim();
+    if (onlyDigits.isEmpty) return null;
+    return onlyDigits.length <= n
+        ? onlyDigits
+        : onlyDigits.substring(onlyDigits.length - n);
+  }
+
+  Future<void> getmoney(int rid, int lid) async {
+    log("GetMoney Start!");
+    final body = {"rid": rid, "uid": widget.idx, "lid": lid};
+
+    final uri = Uri.parse("$url/lottery/rawards/claim");
     final response = await http.put(
       uri,
       headers: {"Content-Type": "application/json; charset=utf-8"},
+      body: jsonEncode(body),
     );
 
     final Map<String, dynamic> res = jsonDecode(response.body);
@@ -504,5 +570,7 @@ class _CheckPageState extends State<CheckPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(res['message'])));
     }
+
+    log(res.toString());
   }
 }

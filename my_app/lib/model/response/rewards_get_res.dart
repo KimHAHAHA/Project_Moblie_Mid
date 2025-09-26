@@ -51,4 +51,17 @@ class RewardGetResponse {
     "claim_status": claimStatus,
     "lotto_number": lottoNumber,
   };
+
+  @override
+  String toString() {
+    return 'RewardGetResponse('
+        'rid: $rid, '
+        'lid: $lid, '
+        'uid: $uid, '
+        'rewardRank: $rewardRank, '
+        'prizeAmount: $prizeAmount, '
+        'claimStatus: $claimStatus, '
+        'lottoNumber: $lottoNumber'
+        ')';
+  }
 }
