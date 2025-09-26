@@ -38,7 +38,6 @@ class _HomePageState extends State<Home_LoginPage> {
   @override
   void initState() {
     super.initState();
-    log("initState เรียกแล้ว");
     _init();
   }
 
@@ -65,14 +64,9 @@ class _HomePageState extends State<Home_LoginPage> {
     }
 
     final rnd = math.Random();
-    // สุ่มเลือก 1 ใบจากรายการทั้งหมด
     final randomLotto = allLottos[rnd.nextInt(allLottos.length)];
 
-    // กรอกตัวเลขของสลากนั้นลงใน 6 ช่อง
-    final number = randomLotto.lottoNumber.padLeft(
-      6,
-      '0',
-    ); // กันกรณีเลขไม่ครบ 6 หลัก
+    final number = randomLotto.lottoNumber.padLeft(6, '0');
     for (var i = 0; i < _controllers.length; i++) {
       _controllers[i].text = number[i];
     }
@@ -196,12 +190,6 @@ class _HomePageState extends State<Home_LoginPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Home_LoginPage(idx: widget.idx),
-                      ),
-                    );
                     _onBuy(widget.idx, lotto.lid);
                   },
                   child: const Text('ตกลง'),
@@ -481,6 +469,11 @@ class _HomePageState extends State<Home_LoginPage> {
           context,
         ).showSnackBar(SnackBar(content: Text(res['message'])));
       }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => Home_LoginPage(idx: widget.idx)),
+      );
     } catch (e, st) {
       log("lottery buy error: $e\n$st");
       if (!mounted) return;

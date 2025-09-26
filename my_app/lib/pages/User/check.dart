@@ -185,8 +185,8 @@ class _CheckPageState extends State<CheckPage> {
             onPressed: () async {
               await getmoney(rid);
               if (!mounted) return;
-              Navigator.pop(context); // ปิด dialog
-              await getrewards(); // โหลดรางวัลใหม่ (แล้ว _recomputeWins() จะถูกเรียก)
+              Navigator.pop(context);
+              await getrewards();
             },
             child: const Text("ขึ้นเงิน"),
           ),
@@ -478,7 +478,6 @@ class _CheckPageState extends State<CheckPage> {
   void _recomputeWins() {
     final myLids = lottos.map((e) => e.lid).toSet();
 
-    // แสดงเฉพาะรางวัลของเรา + ยังไม่ขึ้นเงิน (status == 0)
     final wins = rewards
         .where((r) => myLids.contains(r.lid) && (r.claimStatus == 0))
         .toList();

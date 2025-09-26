@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/response/lotto_get_res.dart';
+import 'package:my_app/model/response/rewards_get_res.dart';
 import 'package:my_app/pages/Admin/ad_admin.dart';
 import 'package:my_app/pages/Admin/ad_home_login.dart';
 
@@ -20,6 +21,13 @@ class ADLuckyPage extends StatefulWidget {
 class _HomePageState extends State<ADLuckyPage> {
   List<LottosGetResponse> lottoall = [];
   List<LottosGetResponse> lottosold = [];
+  List<RewardGetResponse> rewards = [];
+  RewardGetResponse? rewardJackpot,
+      rewardSecond,
+      rewardThird,
+      rewardLast3,
+      rewardLast2;
+
   String url = "";
   String errorText = "";
   bool loading = false;
@@ -42,6 +50,7 @@ class _HomePageState extends State<ADLuckyPage> {
       final config = await Configuration.getConfig();
       url = (config["apiEndpoint"] as String).trim();
       await _fetchLottoData();
+      await getrewards();
     } catch (e, st) {
       log("init error: $e\n$st");
       if (!mounted) return;
@@ -491,5 +500,75 @@ class _HomePageState extends State<ADLuckyPage> {
     if (num == null) return null;
     final s = num.padLeft(6, '0'); // เผื่อกรณีมี 0 นำหน้า
     return s.substring(s.length - n);
+  }
+
+  Future<void> getrewards() async {
+    EasyLoading.show(status: 'loading...');
+    try {
+      final uri = Uri.parse("$url/lottery/rawards");
+      final res = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+      );
+
+      if (res.statusCode != 200) {
+        throw Exception("HTTP ${res.statusCode}: ${res.body}");
+      }
+
+      final decoded = rewardGetResponseFromJson(res.body);
+      log(decoded.toString());
+
+      if (!mounted) return;
+      setState(() {
+        rewards = decoded;
+
+        // จัดรางวัลตาม rank
+        final byRank = <int, RewardGetResponse>{};
+        for (final r in decoded) {
+          byRank[r.rewardRank] = r; // ถ้ามีซ้ำ rank เดียวกัน จะใช้ตัวท้ายสุด
+        }
+
+        rewardJackpot = byRank[1];
+        rewardSecond = byRank[2];
+        rewardThird = byRank[3];
+        rewardLast3 = byRank[4];
+        rewardLast2 = byRank[5];
+
+        // เติมค่าลงการ์ด (เก็บ "เลขเต็ม 6 หลัก" ไว้ก่อน ค่อยไปตัดท้ายตอนแสดง)
+        _cardNumbers[0] = rewardJackpot?.lottoNumber;
+        _cardNumbers[1] = rewardSecond?.lottoNumber;
+        _cardNumbers[2] = rewardThird?.lottoNumber;
+        _cardNumbers[3] = rewardLast3?.lottoNumber;
+        _cardNumbers[4] = rewardLast2?.lottoNumber;
+
+        // กันสุ่มซ้ำ: มาร์ค lid ที่ใช้งานไปแล้ว
+        _usedLids.clear();
+        for (final r in [
+          rewardJackpot,
+          rewardSecond,
+          rewardThird,
+          rewardLast3,
+          rewardLast2,
+        ]) {
+          final lid = r?.lid;
+          if (lid != null) _usedLids.add(lid);
+        }
+
+        // กำหนด index ต่อไปที่จะสุ่มลงการ์ด (ข้าม index 3 ตามลอจิกเดิมของ _randomToCard)
+        int next = 0;
+        while (next < 5 && _cardNumbers[next] != null) {
+          next++;
+          if (next == 3) next++; // ข้าม "Last 3 Numbers" ตาม flow เดิม
+        }
+        _nextCardIndex = next >= 5 ? 5 : next;
+      });
+    } catch (e, st) {
+      log("reward error: $e\n$st");
+      if (!mounted) return;
+      setState(() => errorText = e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
+    }
   }
 }
