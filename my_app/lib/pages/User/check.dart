@@ -486,9 +486,7 @@ class _CheckPageState extends State<CheckPage> {
     final myByLid = {for (final l in lottos) l.lid: l};
 
     // 1) เริ่มจากรางวัลที่ backend สร้างไว้แล้ว (ยังไม่ขึ้นเงิน)
-    final wins = rewards
-        .where((r) => myByLid.containsKey(r.lid) && r.claimStatus == 0)
-        .toList();
+    final wins = rewards.where((r) => myByLid.containsKey(r.lid)).toList();
 
     // 2) เช็คเลขท้าย 3 ตัว
     final winLast3 = _lastNDigits(rewardLast3?.lottoNumber, 3);
