@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/config/config.dart';
 import 'package:my_app/model/request/user_register_post_req.dart';
@@ -22,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   var wallet = TextEditingController();
 
   String url = "";
-  bool _isLoading = false;
+  bool loading = false;
 
   @override
   void initState() {
@@ -242,6 +243,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void register() async {
+    EasyLoading.show(status: 'loading...');
     if (user.text.trim().isEmpty ||
         pass.text.isEmpty ||
         pass2.text.isEmpty ||
@@ -266,10 +268,6 @@ class _RegisterPageState extends State<RegisterPage> {
       phone: phone.text,
       walletBalance: int.parse(wallet.text),
     );
-
-    setState(() {
-      _isLoading = true; // เริ่มแสดง loading
-    });
 
     try {
       final response = await http.post(
@@ -299,9 +297,8 @@ class _RegisterPageState extends State<RegisterPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('เกิดข้อผิดพลาด')));
     } finally {
-      setState(() {
-        _isLoading = false; // ปิด loading
-      });
+      EasyLoading.dismiss();
+      if (mounted) setState(() => loading = false);
     }
   }
 }
