@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   var wallet = TextEditingController();
 
   String url = "";
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -240,7 +241,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void register() {
+  void register() async {
     if (user.text.trim().isEmpty ||
         pass.text.isEmpty ||
         pass2.text.isEmpty ||
@@ -249,46 +250,58 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('กรอกข้อมูลให้ครบถ้วน')));
+      return;
     }
 
     if (pass.text != pass2.text) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('รหัสผ่านไม่ตรงกัน')));
-    } else {
-      var userregister = UserRegisterPostRequest(
-        username: user.text,
-        password: pass.text,
-        phone: phone.text,
-        walletBalance: int.parse(wallet.text),
+      return;
+    }
+
+    var userregister = UserRegisterPostRequest(
+      username: user.text,
+      password: pass.text,
+      phone: phone.text,
+      walletBalance: int.parse(wallet.text),
+    );
+
+    setState(() {
+      _isLoading = true; // เริ่มแสดง loading
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse("$url/register"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: userRegisterPostRequestToJson(userregister),
       );
 
-      http
-          .post(
-            Uri.parse("$url/register"),
-            headers: {"Content-Type": "application/json; charset=utf-8"},
-            body: userRegisterPostRequestToJson(userregister),
-          )
-          .then((value) {
-            final Map<String, dynamic> res = jsonDecode(value.body);
-            if (res['message'] == 'ลงทะเบียนสำเร็จ') {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('สมัครสำเร็จ')));
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            } else {
-              var data = res['message'];
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(data)));
-            }
-          })
-          .catchError((error) {
-            log('Error $error');
-          });
+      final Map<String, dynamic> res = jsonDecode(response.body);
+      if (res['message'] == 'ลงทะเบียนสำเร็จ') {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('สมัครสำเร็จ')));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        var data = res['message'];
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(data)));
+      }
+    } catch (error) {
+      log('Error $error');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('เกิดข้อผิดพลาด')));
+    } finally {
+      setState(() {
+        _isLoading = false; // ปิด loading
+      });
     }
   }
 }
